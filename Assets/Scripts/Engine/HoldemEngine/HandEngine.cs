@@ -22,22 +22,23 @@ namespace HoldemEngine
         int _buttonIdx;
         int _utgIdx;
         int _bbIdx;
+        int _playerIdx;
         #endregion
 
-        #region Constructors
-        public HandEngine()
+
+
+        #region Properties
+        public int PlayerIdx 
         {
+            get { return _playerIdx; }
         }
         #endregion
 
-        /// <summary>
-        /// Plays a hand from the start. Note that this method will <b>not</b> resume a game from a saved hand _history.
-        /// </summary>
-        /// <param name="handHistory">An new hand _history with the list of players and the game parameters.</param>
-        public void PlayHand(HandHistory handHistory)
-        {
-            Debug.Log("=============== PlayHand ==============");
+        
 
+        #region Constructors
+        public HandEngine(HandHistory handHistory)
+        {
             #region Hand Setup
             _seats = handHistory.Players;
             handHistory.HoleCards = new ulong[_seats.Length];
@@ -86,66 +87,87 @@ namespace HoldemEngine
             
             _history.CurrentRound = Round.Preflop;
 
+            _playerIdx = GetFirstToAct(true);
+        }
+        #endregion
+
+
+
+        public bool Bet(Action.ActionTypes actionType, double amount)
+        {
             if (_betManager.CanStillBet > 1)
             {
-                GetBets(_history.PreflopActions);
-                Debug.Log("******************* PreflopActions **********************");
-                Debug.Log(_history.PreflopActions);
+                _history.CurrentBetLevel = _betManager.BetLevel;
+                _history.Pot = _potManager.Total;
+                _history.Hero = _playerIdx;
+                
+                AddAction(_playerIdx, new Action(_seats[_playerIdx].Name, actionType, amount), _history.CurrentActions);
+
+                if (_betManager.RoundOver)
+                {
+                    _playerIdx = GetFirstToAct(false);
+                    return HandleRoundOver();
+                }
+                else
+                {
+                    _playerIdx = _playerIndices.Next;
+                    return false;
+                }
             }
-            if (_betManager.In <= 1)
+
+            return false;
+        }
+
+        private bool HandleRoundOver()
+        {
+            if (_history.CurrentRound == Round.Preflop)
             {
+                if (_betManager.In <= 1)
+                {
+                    payWinners();
+                    return true;
+                }
+
+                DealFlop();
+                _history.CurrentRound = Round.Flop;
+            }
+            else if (_history.CurrentRound == Round.Flop)
+            {
+                if (_betManager.In <= 1)
+                {
+                    payWinners();
+                    return true;
+                }
+                
+                DealTurn();
+                _history.CurrentRound = Round.Turn;
+            }
+            else if (_history.CurrentRound == Round.Turn)
+            {
+                if (_betManager.In <= 1)
+                {
+                    payWinners();
+                    return true;
+                }
+
+                DealRiver();
+                _history.CurrentRound = Round.River;
+            }
+            else if (_history.CurrentRound == Round.River)
+            {
+                if (_betManager.In <= 1)
+                {
+                    payWinners();
+                    return true;
+                }
+
                 payWinners();
-                return;
+                _history.ShowDown = true;
+                _history.CurrentRound = Round.Over;
+                return true;
             }
 
-            DealFlop();
-            _history.CurrentRound = Round.Flop;
-
-            if (_betManager.CanStillBet > 1)
-            {
-                GetBets(_history.FlopActions);
-                Debug.Log("******************* FlopActions **********************");
-                Debug.Log(_history.FlopActions);
-            }
-            if (_betManager.In <= 1)
-            {
-                payWinners();
-                return;
-            }
-            
-            DealTurn();
-            _history.CurrentRound = Round.Turn;
-
-            if (_betManager.CanStillBet > 1)
-            {
-                GetBets(_history.TurnActions);
-                Debug.Log("******************* TurnActions **********************");
-                Debug.Log(_history.TurnActions);
-            }
-            if (_betManager.In <= 1)
-            {
-                payWinners();
-                return;
-            }
-
-            DealRiver();
-            _history.CurrentRound = Round.River;
-
-            if (_betManager.CanStillBet > 1)
-            {
-                GetBets(_history.RiverActions);
-                Debug.Log("******************* RiverActions **********************");
-                Debug.Log(_history.RiverActions);
-            }
-            if (_betManager.In <= 1)
-            {
-                payWinners();
-                return;
-            }
-
-            payWinners();
-            _history.ShowDown = true;
-            _history.CurrentRound = Round.Over;
+            return false;
         }
 
         private void payWinners()
@@ -157,36 +179,6 @@ namespace HoldemEngine
             
             List<Winner> winners = _potManager.GetWinners(strengths);
             _history.Winners = winners;
-        }
-
-        /// <summary>
-        /// Gets the bets from all the players still in the hand.
-        /// </summary>
-        public void GetBets(List<Action> curRoundActions)
-        {
-            bool roundOver = false;
-            
-            int pIdx = GetFirstToAct(_history.CurrentRound == Round.Preflop);
-            
-            //keep getting bets until the round is over
-            while (!roundOver)
-            {
-                _history.CurrentBetLevel = _betManager.BetLevel;
-                _history.Pot = _potManager.Total;
-                _history.Hero = pIdx;
-                
-                //get the next player's action
-                Action.ActionTypes actionType; double amount;
-                _seats[pIdx].Brain.GetAction(_history, out actionType, out amount);
-
-                AddAction(pIdx, new Action(_seats[pIdx].Name, actionType, amount), curRoundActions);
-
-                roundOver = _betManager.RoundOver;
-
-				if(!roundOver)
-                	pIdx = _playerIndices.Next;
-            }
-            
         }
 
         private int GetFirstToAct(bool preflop)
@@ -234,7 +226,7 @@ namespace HoldemEngine
         /// </summary>
         public void GetBlinds()
         {
-            Debug.Log("=============== GetBlinds =================");
+            // Debug.Log("=============== GetBlinds =================");
             if (_history.Ante > 0)
                 for (int i = _utgIdx, count = 0; count < _seats.Length; i = (i + 1) % _seats.Length, count++)
                     AddAction(i, new Action(_seats[i].Name, Action.ActionTypes.PostAnte, _history.Ante), _history.PredealActions);
@@ -260,13 +252,8 @@ namespace HoldemEngine
                               _history.PredealActions);
         }
 
-        /// <summary>
-        /// Deals out all of the players' hole cards.
-        /// </summary>
         public void DealHoleCards()
         {
-            Debug.Log("================= DealHoleCards ==================");
-
             for (int i = 0; i < _seats.Length; i++)
             {
                 _history.HoleCards[i] = Hand.RandomHand(_history.DealtCards, 2);
@@ -276,29 +263,21 @@ namespace HoldemEngine
 
         public void DealFlop()
         {
-            Debug.Log("================= DealFlop ==================");
             _history.Flop = Hand.RandomHand(_history.DealtCards, 3);
             _history.DealtCards = _history.DealtCards | _history.Flop;
-            Debug.Log(_history.Flop);
         }
 
         public void DealTurn()
         {
-            Debug.Log("================= DealTurn ==================");
             _history.Turn = Hand.RandomHand(_history.DealtCards, 1);
             _history.DealtCards = _history.DealtCards | _history.Turn;
-            Debug.Log(_history.Turn);
         }
 
         public void DealRiver()
         {
-            Debug.Log("================= DealRiver ==================");
             _history.River = Hand.RandomHand(_history.DealtCards, 1);
             _history.DealtCards = _history.DealtCards | _history.River;
-            Debug.Log(_history.River);
         }
-
-
 
     }
  
