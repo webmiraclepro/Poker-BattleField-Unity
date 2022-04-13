@@ -22,7 +22,21 @@ class Main: MonoBehaviour
 		HandHistory history = new HandHistory(seats, handNumber, handNumber % (uint)seats.Length + 1, blinds, 0, BettingStructure.Limit);
 		HandEngine engine = new HandEngine(history);
 
-		while(!engine.Bet(HoldemEngine.Action.ActionTypes.Raise, 0));
+		while(true)
+		{
+			Debug.Log("==================== Player =========================");
+			foreach(HoldemEngine.Action action in engine.GetAbleActions())
+			{
+				Debug.Log(action.ActionType + ": " + action.Amount);
+			}
+
+			bool gameOver = engine.Bet(HoldemEngine.Action.ActionTypes.Bet, 0);
+
+			if (gameOver)
+			{
+				break;
+			}
+		}
 
 		Debug.Log(history.ToString(true));
 	}

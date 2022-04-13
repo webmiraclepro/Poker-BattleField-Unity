@@ -8,6 +8,7 @@ using Photon.Realtime;
 using Photon.Pun.UtilityScripts;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 using HoldemEngine;
+using PokerAction = HoldemEngine.Action;
 
 namespace Photon.Pun.Poker 
 {
@@ -76,6 +77,9 @@ namespace Photon.Pun.Poker
                 Transform transform = _playerSlots[playerIdx];
                 PhotonNetwork.Instantiate("Player", transform.position, transform.rotation);
                 
+                // Set local player
+                _player = GameObject.FindWithTag("Player").GetComponent<PokerPlayer>();
+
                 // Initialize current player with master client number
                 if (PhotonNetwork.IsMasterClient) 
                 {
@@ -94,14 +98,11 @@ namespace Photon.Pun.Poker
             PhotonNetwork.Disconnect();
         }
 
-        public void SetLocalPlayer(PokerPlayer player)
-        {
-            _player = player;
-        }
 
-        public void OnCall()
+        [PunRPC]
+        public void HanldeAction(PokerAction.ActionTypes actionType, double amount)
         {
-            _player.photonView.RPC("Call", RpcTarget.All);
+
         }
 
         [PunRPC]
@@ -111,11 +112,12 @@ namespace Photon.Pun.Poker
 
             if (PhotonNetwork.LocalPlayer.ActorNumber == _currentPlayer)
             {
-                _controlPanel.SetActivePlayer(true);
+                _player.SetActive(true);
+                _player.SetAbleActions(_engine.GetAbleActions());
             }
             else 
             {
-                _controlPanel.SetActivePlayer(false);
+                _player.SetActive(false);
             }
         }
     }

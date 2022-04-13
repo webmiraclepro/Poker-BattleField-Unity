@@ -221,12 +221,47 @@ namespace HoldemEngine
             
         }
 
+        public List<Action> GetAbleActions()
+        {
+            List<Action> ableActions = new List<Action>();
+
+            string playerName = _seats[_playerIdx].Name;
+
+            // Add Fold action regardless of any conditions
+            ableActions.Add(new Action(playerName, Action.ActionTypes.Fold, 0));
+
+            Action betAction = new Action(playerName, Action.ActionTypes.Bet, 0);
+            if (_betManager.GetValidatedAction(betAction).ActionType == Action.ActionTypes.Bet)
+            {
+                ableActions.Add(betAction);
+            }
+
+            Action raiseAction = new Action(playerName, Action.ActionTypes.Raise, 0);
+            if (_betManager.GetValidatedAction(raiseAction).ActionType == Action.ActionTypes.Raise)
+            {
+                ableActions.Add(raiseAction);
+            }
+
+            Action callAction = new Action(playerName, Action.ActionTypes.Call, 0);
+            if (_betManager.GetValidatedAction(callAction).ActionType == Action.ActionTypes.Call)
+            {
+                ableActions.Add(callAction);
+            }
+
+            Action checkAction = new Action(playerName, Action.ActionTypes.Check, 0);
+            if (_betManager.GetValidatedAction(checkAction).ActionType == Action.ActionTypes.Check)
+            {
+                ableActions.Add(checkAction);
+            }
+
+            return ableActions;
+        }
+
         /// <summary>
         /// Forces players to post blinds before the hand can start.
         /// </summary>
         public void GetBlinds()
         {
-            // Debug.Log("=============== GetBlinds =================");
             if (_history.Ante > 0)
                 for (int i = _utgIdx, count = 0; count < _seats.Length; i = (i + 1) % _seats.Length, count++)
                     AddAction(i, new Action(_seats[i].Name, Action.ActionTypes.PostAnte, _history.Ante), _history.PredealActions);
