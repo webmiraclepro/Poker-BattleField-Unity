@@ -57,10 +57,9 @@ namespace Photon.Pun.Poker
         {
             _seats = new Seat[PhotonNetwork.PlayerList.Length];
             
-            for (int idx = 0; idx < PhotonNetwork.PlayerList.Length; idx++)
+            foreach (Player p  in PhotonNetwork.PlayerList)
             {
-                Player p = PhotonNetwork.PlayerList[idx];
-                _seats[idx] = new Seat(idx + 1, p.NickName, 1000);
+                _seats[p.ActorNumber - 1] = new Seat(p.ActorNumber, p.NickName, 1000);
             }
             
             _history = new HandHistory(_seats, _handNumber, _button, _blinds, 0, BettingStructure.Limit); 
@@ -69,7 +68,6 @@ namespace Photon.Pun.Poker
 
         private void StartGame()
         {
-            Debug.Log("StartGame!");
             int playerIdx = PhotonNetwork.LocalPlayer.ActorNumber - 1;
 
             if (playerIdx >= 0 && playerIdx < _playerSlots.Length)
@@ -83,7 +81,7 @@ namespace Photon.Pun.Poker
                 // Initialize current player with master client number
                 if (PhotonNetwork.IsMasterClient) 
                 {
-                    photonView.RPC("SetCurrentPlayer", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber); 
+                    photonView.RPC("SetCurrentPlayer", RpcTarget.All, _engine.PlayerIdx); 
                 }
             }
         }
@@ -100,15 +98,26 @@ namespace Photon.Pun.Poker
 
 
         [PunRPC]
-        public void HanldeAction(PokerAction.ActionTypes actionType, double amount)
+        public void DispatchAction(PokerAction.ActionTypes actionType, double amount)
         {
+            Debug.Log("Action: " + actionType + ", Amount: " + amount);
+            bool gameOver = _engine.Bet(actionType, amount);
 
+            if (gameOver)
+            {
+                Debug.Log(_history.ToString(true));
+            }
+
+            if (PhotonNetwork.IsMasterClient)
+            {
+                photonView.RPC("SetCurrentPlayer", RpcTarget.All, _engine.PlayerIdx);
+            }
         }
 
         [PunRPC]
-        public void SetCurrentPlayer(int playerNumber)
+        public void SetCurrentPlayer(int playerIdx)
         {
-            _currentPlayer = playerNumber;
+            _currentPlayer = _seats[playerIdx].SeatNumber;
 
             if (PhotonNetwork.LocalPlayer.ActorNumber == _currentPlayer)
             {

@@ -23,11 +23,30 @@ public class ControlPanel : MonoBehaviour
     [SerializeField]
     private Button _checkButton;
 
-    public Button CallButton {get;}
-    public Button BetButton {get;}
-    public Button RaiseButton {get;}
-    public Button FoldButton {get;}
-    public Button CheckButton {get;}
+    public Button CallButton 
+    {
+        get { return _callButton; }
+    }
+
+    public Button BetButton 
+    {
+        get { return _betButton; }
+    }
+
+    public Button RaiseButton 
+    {
+        get { return _raiseButton; }
+    }
+    
+    public Button FoldButton 
+    {
+        get { return _foldButton; }
+    }
+    
+    public Button CheckButton 
+    {
+        get { return _checkButton; }
+    }
 
     public void SetActive(bool activated)
     {

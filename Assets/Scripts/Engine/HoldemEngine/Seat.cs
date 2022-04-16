@@ -11,6 +11,7 @@ namespace HoldemEngine
         private double chips;
         private int seat;
         private IPlayer brain;
+        private int actorNumber;
         #endregion
 
         #region Properties
@@ -49,6 +50,15 @@ namespace HoldemEngine
             get { return brain; }
             set { brain = value; }
         }
+
+        /// <summary>
+        /// The photon actor number of this player.
+        /// </summary>
+        public int ActorNumber
+        {
+            get { return actorNumber; }
+            set { actorNumber = value; }
+        }
         #endregion
 
         #region Constructors
@@ -61,6 +71,14 @@ namespace HoldemEngine
             this.name = playerName;
             this.seat = seatNumber;
             this.chips = chips;
+        }
+
+        public Seat(int seatNumber, string playerName, double chips, int actorNumber)
+        {
+            this.name = playerName;
+            this.seat = seatNumber;
+            this.chips = chips;
+            this.actorNumber = actorNumber;
         }
 
         public Seat(int seatNumber, string playerName, double chips, IPlayer brain)

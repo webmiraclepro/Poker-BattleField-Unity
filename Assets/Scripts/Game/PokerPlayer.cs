@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -14,10 +15,8 @@ namespace Photon.Pun.Poker
         [SerializeField]
         private Transform _cameraPosition;
 
-        [SerializeField]
         private GameManager _gameManager;
 
-        [SerializeField]
         private ControlPanel _controlPanel;
 
         private List<Action> _ableActions;
@@ -27,6 +26,8 @@ namespace Photon.Pun.Poker
 
         public void Awake()
         {
+            _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+            _controlPanel = GameObject.Find("ControlPanel").GetComponent<ControlPanel>();
             _amountMap = new Dictionary<Action.ActionTypes, double>();
         }
 
@@ -36,6 +37,22 @@ namespace Photon.Pun.Poker
             {
                 _controlPanel.CallButton.onClick.AddListener(() => {
                     photonView.RPC("ThrowAction", RpcTarget.All, Action.ActionTypes.Call);
+                });
+
+                _controlPanel.BetButton.onClick.AddListener(() => {
+                    photonView.RPC("ThrowAction", RpcTarget.All, Action.ActionTypes.Bet);
+                });
+
+                _controlPanel.RaiseButton.onClick.AddListener(() => {
+                    photonView.RPC("ThrowAction", RpcTarget.All, Action.ActionTypes.Raise);
+                });
+
+                _controlPanel.CheckButton.onClick.AddListener(() => {
+                    photonView.RPC("ThrowAction", RpcTarget.All, Action.ActionTypes.Check);
+                });
+
+                _controlPanel.FoldButton.onClick.AddListener(() => {
+                    photonView.RPC("ThrowAction", RpcTarget.All, Action.ActionTypes.Fold);
                 });
             }
         }
@@ -66,6 +83,11 @@ namespace Photon.Pun.Poker
             _ableActions = actions;
             _controlPanel.SetAbleActions(actions);
             
+            foreach(Action.ActionTypes actionType in Enum.GetValues(typeof(Action.ActionTypes)))
+            {
+                _amountMap[actionType] = 0;
+            }
+
             foreach(Action action in actions)
             {
                 _amountMap[action.ActionType] = action.Amount;
@@ -75,7 +97,7 @@ namespace Photon.Pun.Poker
         [PunRPC]
         public void ThrowAction(Action.ActionTypes actionType)
         {
-            _gameManager.photonView.RPC("HandleAction", RpcTarget.All, actionType, _amountMap[actionType]);
+            _gameManager.photonView.RPC("DispatchAction", RpcTarget.All, actionType, _amountMap[actionType]);
         }
 
     }

@@ -49,6 +49,9 @@ MonoBehaviour:
   - Raise
   - NextTurn
   - SetCurrentPlayer
+  - HanldeAction
+  - ThrowAction
+  - DispatchAction
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
