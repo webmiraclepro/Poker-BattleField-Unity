@@ -8,6 +8,8 @@ namespace Photon.Pun.Poker
 {
     public class LobbyMainPanel : MonoBehaviourPunCallbacks
     {
+        public GameObject LoadingPanel;
+
         public GameObject LoginPanel;
 
         public InputField PlayerNameInput;
@@ -212,6 +214,7 @@ namespace Photon.Pun.Poker
             RoomOptions options = new RoomOptions {MaxPlayers = maxPlayers, PlayerTtl = 10000 };
 
             PhotonNetwork.CreateRoom(roomName, options, null);
+            ShowLoading(true);
         }
 
         public void OnJoinRandomRoomButtonClicked()
@@ -219,11 +222,13 @@ namespace Photon.Pun.Poker
             SetActivePanel(JoinRandomRoomPanel.name);
 
             PhotonNetwork.JoinRandomRoom();
+            ShowLoading(true);
         }
 
         public void OnLeaveGameButtonClicked()
         {
             PhotonNetwork.LeaveRoom();
+            ShowLoading(true);
         }
 
         public void OnLoginButtonClicked()
@@ -232,6 +237,7 @@ namespace Photon.Pun.Poker
 
             if (!playerName.Equals(""))
             {
+                ShowLoading(true);
                 PhotonNetwork.LocalPlayer.NickName = playerName;
                 PhotonNetwork.ConnectUsingSettings();
             }
@@ -246,6 +252,7 @@ namespace Photon.Pun.Poker
             if (!PhotonNetwork.InLobby)
             {
                 PhotonNetwork.JoinLobby();
+                ShowLoading(true);
             }
 
             SetActivePanel(RoomListPanel.name);
@@ -266,6 +273,8 @@ namespace Photon.Pun.Poker
                 return false;
             }
 
+            int readyPlayersCount = 0;
+            
             foreach (Player p in PhotonNetwork.PlayerList)
             {
                 object isPlayerReady;
@@ -280,9 +289,11 @@ namespace Photon.Pun.Poker
                 {
                     return false;
                 }
+
+                readyPlayersCount++;
             }
 
-            return true;
+            return readyPlayersCount >;
         }
         
         private void ClearRoomListView()
@@ -302,6 +313,8 @@ namespace Photon.Pun.Poker
 
         private void SetActivePanel(string activePanel)
         {
+            ShowLoading(false);
+
             LoginPanel.SetActive(activePanel.Equals(LoginPanel.name));
             SelectionPanel.SetActive(activePanel.Equals(SelectionPanel.name));
             CreateRoomPanel.SetActive(activePanel.Equals(CreateRoomPanel.name));
@@ -349,6 +362,11 @@ namespace Photon.Pun.Poker
 
                 roomListEntries.Add(info.Name, entry);
             }
+        }
+
+        private void ShowLoading(bool visible)
+        {
+            LoadingPanel.SetActive(visible);
         }
     }
 }

@@ -62,8 +62,12 @@ namespace Photon.Pun.Poker
                 _seats[p.ActorNumber - 1] = new Seat(p.ActorNumber, p.NickName, 1000);
             }
             
-            _history = new HandHistory(_seats, _handNumber, _button, _blinds, 0, BettingStructure.Limit); 
-            _engine = new HandEngine(_history);
+            // It is possible to start game if there are at least two players
+            if (_seats.Length > 1) 
+            {
+                _history = new HandHistory(_seats, _handNumber, _button, _blinds, 0, BettingStructure.Limit); 
+                _engine = new HandEngine(_history);
+            }
         }
 
         private void StartGame()
