@@ -293,7 +293,7 @@ namespace Photon.Pun.Poker
                 readyPlayersCount++;
             }
 
-            return readyPlayersCount >;
+            return readyPlayersCount > 1;
         }
         
         private void ClearRoomListView()
