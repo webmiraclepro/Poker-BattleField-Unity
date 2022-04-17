@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace HoldemEngine
 {
@@ -32,6 +33,20 @@ namespace HoldemEngine
         private double amount;
         private bool allIn = false;
         #endregion
+
+        public static object Deserialize(byte[] data)
+        {
+            var result = new Action();
+            result.ActionType = (ActionTypes) data[0];
+            result.Amount = BitConverter.ToDouble(data.Skip(1).ToArray(), 0);
+            return result;
+        }
+
+        public static byte[] Serialize(object action)
+        {
+            var c = (Action) action;
+            return new byte[] { (byte) c.ActionType }.Concat(BitConverter.GetBytes(c.Amount)).ToArray();
+        }
 
         #region Properties
 

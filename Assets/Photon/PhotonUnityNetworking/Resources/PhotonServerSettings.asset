@@ -52,6 +52,7 @@ MonoBehaviour:
   - HanldeAction
   - ThrowAction
   - DispatchAction
+  - SetNextPlayer
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

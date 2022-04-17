@@ -1,12 +1,16 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 using Photon.Realtime;
+using Photon.Pun;
 using Photon.Pun.UtilityScripts;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
+using PhotonPeer = ExitGames.Client.Photon.PhotonPeer;
 using HoldemEngine;
 using PokerAction = HoldemEngine.Action;
 
@@ -21,7 +25,8 @@ namespace Photon.Pun.Poker
         private Seat[] _seats;
         private ulong _handNumber = 0;
         private uint _button = 0;
-        
+        private readonly int _initChips = 1000;
+
         [SerializeField]
         private double[] _blinds = new double[] { 10, 20 };
 
@@ -38,39 +43,42 @@ namespace Photon.Pun.Poker
         public void Awake()
         {
             Instance = this;
+            PhotonPeer.RegisterType(typeof(PokerAction), (byte)'A', PokerAction.Serialize, PokerAction.Deserialize);
         }
 
         public void Start()
         {
-            Hashtable props = new Hashtable
-            {
-                {PokerGame.PLAYER_LOADED_LEVEL, true}
-            };
-            PhotonNetwork.LocalPlayer.SetCustomProperties(props);
+            SpawnPlayer();
 
-            Initialize();    
-            
-            StartGame();
+            if (PhotonNetwork.IsMasterClient)
+            {
+                InitEngine();
+                UpdatePlayersScore();
+                UpdateNextPlayer();                
+            }
         }
         
-        private void Initialize()
+        private void InitEngine()
         {
             _seats = new Seat[PhotonNetwork.PlayerList.Length];
-            
             foreach (Player p  in PhotonNetwork.PlayerList)
             {
-                _seats[p.ActorNumber - 1] = new Seat(p.ActorNumber, p.NickName, 1000);
+                _seats[p.ActorNumber - 1] = new Seat(p.ActorNumber, p.NickName, _initChips);
             }
-            
-            // It is possible to start game if there are at least two players
-            if (_seats.Length > 1) 
+
+            _history = new HandHistory(_seats, _handNumber, _button, _blinds, 0, BettingStructure.Limit); 
+            _engine = new HandEngine(_history);
+        }
+
+        private void UpdatePlayersScore()
+        {
+            foreach(Player p in PhotonNetwork.PlayerList)
             {
-                _history = new HandHistory(_seats, _handNumber, _button, _blinds, 0, BettingStructure.Limit); 
-                _engine = new HandEngine(_history);
+                p.SetScore((int)_seats[p.ActorNumber - 1].Chips);
             }
         }
 
-        private void StartGame()
+        private void SpawnPlayer()
         {
             int playerIdx = PhotonNetwork.LocalPlayer.ActorNumber - 1;
 
@@ -81,18 +89,26 @@ namespace Photon.Pun.Poker
                 
                 // Set local player
                 _player = GameObject.FindWithTag("Player").GetComponent<PokerPlayer>();
-
-                // Initialize current player with master client number
-                if (PhotonNetwork.IsMasterClient) 
-                {
-                    photonView.RPC("SetCurrentPlayer", RpcTarget.All, _engine.PlayerIdx); 
-                }
             }
+        }
+
+        private void UpdateNextPlayer()
+        {
+            List<int> actionTypes = new List<int>();
+            List<double> amounts = new List<double>();
+
+            foreach (PokerAction action in _engine.GetAbleActions())
+            {
+                actionTypes.Add((int)action.ActionType);
+                amounts.Add(action.Amount);
+            }
+
+            photonView.RPC("SetNextPlayer", RpcTarget.All, _engine.PlayerIdx, _engine.GetAbleActions().ToArray());
         }
 
         public override void OnDisconnected(DisconnectCause cause)
         {
-            SceneManager.LoadScene("LobbyScene");
+            SceneManager.LoadScene(0);
         }
 
         public override void OnLeftRoom()
@@ -100,35 +116,34 @@ namespace Photon.Pun.Poker
             PhotonNetwork.Disconnect();
         }
 
-
-        [PunRPC]
         public void DispatchAction(PokerAction.ActionTypes actionType, double amount)
         {
-            Debug.Log("Action: " + actionType + ", Amount: " + amount);
+            if (!PhotonNetwork.IsMasterClient)
+            {
+                return;
+            }
+
             bool gameOver = _engine.Bet(actionType, amount);
+            
+            UpdatePlayersScore();
+            UpdateNextPlayer();
 
             if (gameOver)
             {
                 Debug.Log(_history.ToString(true));
-            }
-
-            if (PhotonNetwork.IsMasterClient)
-            {
-                photonView.RPC("SetCurrentPlayer", RpcTarget.All, _engine.PlayerIdx);
+                InitEngine();
             }
         }
 
         [PunRPC]
-        public void SetCurrentPlayer(int playerIdx)
+        public void SetNextPlayer(int playerIdx, Action[] actions)
         {
-            _currentPlayer = _seats[playerIdx].SeatNumber;
-
-            if (PhotonNetwork.LocalPlayer.ActorNumber == _currentPlayer)
+            if (PhotonNetwork.LocalPlayer.ActorNumber == playerIdx + 1)
             {
                 _player.SetActive(true);
-                _player.SetAbleActions(_engine.GetAbleActions());
+                _player.SetAbleActions(actions.ToList());
             }
-            else 
+            else
             {
                 _player.SetActive(false);
             }

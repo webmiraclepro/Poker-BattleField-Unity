@@ -56,11 +56,11 @@ namespace Photon.Pun.Poker
                 });
 
                 _controlPanel.CheckButton.onClick.AddListener(() => {
-                    photonView.RPC("ThrowAction", RpcTarget.All, Action.ActionTypes.Check, 0);
+                    photonView.RPC("ThrowAction", RpcTarget.All, Action.ActionTypes.Check, .0d);
                 });
 
                 _controlPanel.FoldButton.onClick.AddListener(() => {
-                    photonView.RPC("ThrowAction", RpcTarget.All, Action.ActionTypes.Fold, 0);
+                    photonView.RPC("ThrowAction", RpcTarget.All, Action.ActionTypes.Fold, .0d);
                 });
             }
         }
@@ -100,7 +100,10 @@ namespace Photon.Pun.Poker
         [PunRPC]
         public void ThrowAction(Action.ActionTypes actionType, double amount)
         {
-            _gameManager.photonView.RPC("DispatchAction", RpcTarget.All, actionType, amount);
+            if (PhotonNetwork.IsMasterClient)
+            {
+                _gameManager.DispatchAction(actionType, amount);
+            }
         }
 
     }

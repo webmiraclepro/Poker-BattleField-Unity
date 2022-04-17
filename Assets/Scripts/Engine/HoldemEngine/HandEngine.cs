@@ -106,11 +106,13 @@ namespace HoldemEngine
                 if (_betManager.RoundOver)
                 {
                     _playerIdx = GetFirstToAct(false);
+                    Debug.Log("GetFirstToAct: " + _playerIdx);
                     return HandleRoundOver();
                 }
                 else
                 {
                     _playerIdx = _playerIndices.Next;
+                    Debug.Log("Next Player: " + _playerIdx);
                     return false;
                 }
             }

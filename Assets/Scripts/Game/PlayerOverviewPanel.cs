@@ -52,7 +52,7 @@ namespace Photon.Pun.Poker
             GameObject entry;
             if (playerListEntries.TryGetValue(targetPlayer.ActorNumber, out entry))
             {
-                entry.GetComponent<Text>().text = string.Format("{0}\nScore: {1}\nLives: {2}", targetPlayer.NickName, targetPlayer.GetScore(), targetPlayer.CustomProperties[PokerGame.PLAYER_LIVES]);
+                entry.GetComponent<Text>().text = string.Format("{0}\nScore: {1}", targetPlayer.NickName, targetPlayer.GetScore());
             }
         }
 
