@@ -22,6 +22,8 @@ namespace Photon.Pun.Poker
 
         private ControlPanel _controlPanel;
 
+        private GameObject _gameOverPanel;
+
         private List<Action> _ableActions;
 
         private Dictionary<Action.ActionTypes, double> _amountMap;
@@ -35,6 +37,8 @@ namespace Photon.Pun.Poker
         {
             _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
             _controlPanel = GameObject.Find("ControlPanel").GetComponent<ControlPanel>();
+            _gameOverPanel = GameObject.Find("GameOverPanel");
+            
             _amountMap = new Dictionary<Action.ActionTypes, double>();
 
             foreach(Action.ActionTypes actionType in Enum.GetValues(typeof(Action.ActionTypes)))
@@ -94,6 +98,13 @@ namespace Photon.Pun.Poker
         public void SetActive(bool activated)
         {
             _controlPanel.SetActive(activated);
+        }
+
+        public void GameOver(string history)
+        {
+            _controlPanel.SetActive(false);
+            _gameOverPanel.SetActive(true);
+            _gameOverPanel.GetComponent<GameOverPanel>().SetInfoText(history);
         }
 
         public void SetAbleActions(List<Action> actions)

@@ -59,6 +59,8 @@ MonoBehaviour:
   - DealFlopCards
   - DealRiverCard
   - DealTurnCard
+  - ShowOtherHoleCards
+  - GameOver
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

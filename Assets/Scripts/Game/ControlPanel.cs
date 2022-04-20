@@ -23,6 +23,10 @@ public class ControlPanel : MonoBehaviour
     [SerializeField]
     private Button _checkButton;
 
+    [SerializeField]
+    private GameObject _backgroundImage;
+
+
     public Button CallButton 
     {
         get { return _callButton; }
@@ -50,6 +54,7 @@ public class ControlPanel : MonoBehaviour
 
     public void SetActive(bool activated)
     {
+        _backgroundImage.SetActive(activated);
         SetActiveButtons(activated);
     }
 

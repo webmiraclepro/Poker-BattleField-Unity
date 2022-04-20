@@ -107,7 +107,7 @@ namespace HoldemEngine
                 for(int i = 0; i < eligible.Length; i++)
                     if (eligible[i])
                     {
-                        winners.Add(new Winner(players[i].Name, name, size));
+                        winners.Add(new Winner(players[i].SeatNumber, players[i].Name, name, size));
                         players[i].Chips += size;//pay the player
                         return;
                     }
@@ -146,7 +146,7 @@ namespace HoldemEngine
             //if only 1 player won this hand, give him the whole thing
             if (toPay.Count == 1)
             {
-                winners.Add(new Winner(toPay[0].Name,name,size));
+                winners.Add(new Winner(toPay[0].SeatNumber, toPay[0].Name,name,size));
                 toPay[0].Chips += size;
                 return;
             }
@@ -157,7 +157,7 @@ namespace HoldemEngine
             //pay each player their portion of the pot.
             foreach (Seat player in toPay)
             {
-                winners.Add(new Winner(player.Name,name,splitAmt));
+                winners.Add(new Winner(player.SeatNumber, player.Name, name, splitAmt));
                 player.Chips += splitAmt;
             }
         }

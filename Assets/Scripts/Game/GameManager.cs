@@ -34,9 +34,6 @@ namespace Photon.Pun.Poker
         private Transform[] _playerSlots;
 
         [SerializeField]
-        private ControlPanel _controlPanel;
-
-        [SerializeField]
         private CardSlot[] _flopCardSlots;
 
         [SerializeField]
@@ -263,8 +260,9 @@ namespace Photon.Pun.Poker
             switch (round)
             {
                 case Round.Over:
-                    Debug.Log(_history.ToString(true));
-                    InitEngine();
+                case Round.River:
+                    photonView.RPC("ShowOtherHoleCards", RpcTarget.All);
+                    photonView.RPC("GameOver", RpcTarget.All, _history.ToString());
                     break;
 
                 case Round.Preflop:
@@ -277,13 +275,9 @@ namespace Photon.Pun.Poker
                     UpdateNextPlayer();
                     break;
                 
-                case Round.Turn:
+                case Round.Turn: 
                     photonView.RPC("DealRiverCard", RpcTarget.All, HoldemHand.Hand.MaskToString(_history.River));
                     UpdateNextPlayer();
-                    break;
-
-                case Round.River:
-                    photonView.RPC("ShowOtherHoleCards", RpcTarget.All);
                     break;
 
                 default:
@@ -306,6 +300,12 @@ namespace Photon.Pun.Poker
             {
                 _player.SetActive(false);
             }
+        }
+
+        [PunRPC]
+        public void GameOver(string history)
+        {
+            _player.GameOver(history);
         }
     }
 }
