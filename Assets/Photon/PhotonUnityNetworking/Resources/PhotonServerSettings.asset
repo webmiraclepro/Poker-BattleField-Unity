@@ -53,6 +53,12 @@ MonoBehaviour:
   - ThrowAction
   - DispatchAction
   - SetNextPlayer
+  - ShowFlopCards
+  - ShowHoleCards
+  - DealHoleCards
+  - DealFlopCards
+  - DealRiverCard
+  - DealTurnCard
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

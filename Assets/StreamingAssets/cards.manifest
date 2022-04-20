@@ -1,0 +1,68 @@
+ManifestFileVersion: 0
+CRC: 2032396296
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: ccec96e7d6e0826615b584076c5cf959
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: b0363f7088f9761414f730641bf9a24b
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Textures/Cards/qh.png
+- Assets/Textures/Cards/ac.png
+- Assets/Textures/Cards/as.png
+- Assets/Textures/Cards/3c.png
+- Assets/Textures/Cards/5c.png
+- Assets/Textures/Cards/5d.png
+- Assets/Textures/Cards/ts.png
+- Assets/Textures/Cards/th.png
+- Assets/Textures/Cards/ks.png
+- Assets/Textures/Cards/7h.png
+- Assets/Textures/Cards/jc.png
+- Assets/Textures/Cards/9s.png
+- Assets/Textures/Cards/4s.png
+- Assets/Textures/Cards/2d.png
+- Assets/Textures/Cards/tc.png
+- Assets/Textures/Cards/9h.png
+- Assets/Textures/Cards/kc.png
+- Assets/Textures/Cards/8h.png
+- Assets/Textures/Cards/qd.png
+- Assets/Textures/Cards/ah.png
+- Assets/Textures/Cards/td.png
+- Assets/Textures/Cards/6c.png
+- Assets/Textures/Cards/6s.png
+- Assets/Textures/Cards/2s.png
+- Assets/Textures/Cards/qs.png
+- Assets/Textures/Cards/8c.png
+- Assets/Textures/Cards/7d.png
+- Assets/Textures/Cards/jh.png
+- Assets/Textures/Cards/8s.png
+- Assets/Textures/Cards/7c.png
+- Assets/Textures/Cards/3h.png
+- Assets/Textures/Cards/9c.png
+- Assets/Textures/Cards/5h.png
+- Assets/Textures/Cards/jd.png
+- Assets/Textures/Cards/5s.png
+- Assets/Textures/Cards/2c.png
+- Assets/Textures/Cards/4h.png
+- Assets/Textures/Cards/qc.png
+- Assets/Textures/Cards/kh.png
+- Assets/Textures/Cards/js.png
+- Assets/Textures/Cards/9d.png
+- Assets/Textures/Cards/ad.png
+- Assets/Textures/Cards/6d.png
+- Assets/Textures/Cards/6h.png
+- Assets/Textures/Cards/kd.png
+- Assets/Textures/Cards/3d.png
+- Assets/Textures/Cards/2h.png
+- Assets/Textures/Cards/4c.png
+- Assets/Textures/Cards/7s.png
+- Assets/Textures/Cards/3s.png
+- Assets/Textures/Cards/8d.png
+- Assets/Textures/Cards/4d.png
+Dependencies: []

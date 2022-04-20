@@ -93,7 +93,7 @@ namespace HoldemEngine
 
 
 
-        public bool Bet(Action.ActionTypes actionType, double amount)
+        public Round Bet(Action.ActionTypes actionType, double amount)
         {
             if (_betManager.CanStillBet > 1)
             {
@@ -106,70 +106,71 @@ namespace HoldemEngine
                 if (_betManager.RoundOver)
                 {
                     _playerIdx = GetFirstToAct(false);
-                    Debug.Log("GetFirstToAct: " + _playerIdx);
                     return HandleRoundOver();
                 }
                 else
                 {
                     _playerIdx = _playerIndices.Next;
-                    Debug.Log("Next Player: " + _playerIdx);
-                    return false;
+                    return Round.Predeal;
                 }
             }
 
-            return false;
+            return Round.Predeal;
         }
 
-        private bool HandleRoundOver()
+        private Round HandleRoundOver()
         {
             if (_history.CurrentRound == Round.Preflop)
             {
                 if (_betManager.In <= 1)
                 {
                     payWinners();
-                    return true;
+                    return Round.Over;
                 }
 
                 DealFlop();
                 _history.CurrentRound = Round.Flop;
+                return Round.Preflop;
             }
             else if (_history.CurrentRound == Round.Flop)
             {
                 if (_betManager.In <= 1)
                 {
                     payWinners();
-                    return true;
+                    return Round.Over;
                 }
                 
                 DealTurn();
                 _history.CurrentRound = Round.Turn;
+                return Round.Flop;
             }
             else if (_history.CurrentRound == Round.Turn)
             {
                 if (_betManager.In <= 1)
                 {
                     payWinners();
-                    return true;
+                    return Round.Over;
                 }
 
                 DealRiver();
                 _history.CurrentRound = Round.River;
+                return Round.Turn;
             }
             else if (_history.CurrentRound == Round.River)
             {
                 if (_betManager.In <= 1)
                 {
                     payWinners();
-                    return true;
+                    return Round.Over;
                 }
 
                 payWinners();
                 _history.ShowDown = true;
                 _history.CurrentRound = Round.Over;
-                return true;
+                return Round.River;
             }
 
-            return false;
+            return Round.Predeal;
         }
 
         private void payWinners()

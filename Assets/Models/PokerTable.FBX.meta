@@ -9,6 +9,56 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Gold_10k
     second: {fileID: 2100000, guid: 6e8f3f3c0ec5fb7419e915f205ca2803, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Plastic Glossy
+    second: {fileID: 2100000, guid: 998b4d3f60d56af41805d4fc218d21b2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: cart_1
+    second: {fileID: 2100000, guid: fbc5c3bf885b3994a823a7e40a761b0f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: cart_2
+    second: {fileID: 2100000, guid: 2748e19bd3925024c84a662fc5a6548f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: cart_3
+    second: {fileID: 2100000, guid: c9182d50d69e0bb4fb6d861af5129abc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: chip_1
+    second: {fileID: 2100000, guid: 2ef37e9361039214c93809cdac40bde0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: chip_10
+    second: {fileID: 2100000, guid: 2ff042bbbb17c394fba2e140cce691d0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: chip_100
+    second: {fileID: 2100000, guid: ccfb5f8eec2092840b52ae865230fa8d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: chip_50
+    second: {fileID: 2100000, guid: b6aa30bbf9942dc409039ed07a64f26d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: chip_500
+    second: {fileID: 2100000, guid: f88bb5984864af04eb6557e99f2bbaa3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: table
+    second: {fileID: 2100000, guid: 99372edff26986946800f2797cc1281c, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

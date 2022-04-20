@@ -4,12 +4,11 @@ namespace Photon.Pun.Poker
 {
     public class PokerGame
     {
-        public const int PLAYER_MAX_LIVES = 3;
-
-        public const string PLAYER_LIVES = "PlayerLives";
         public const string PLAYER_READY = "IsPlayerReady";
         public const string PLAYER_LOADED_LEVEL = "PlayerLoadedLevel";
-
+        public const string PLAYER_INSTANTIATED_CHARACTOR = "PlayerInstantiatedCharactor";
+        public const string PLAYER_DEALT_INITIAL_CARDS = "PlayerDealtInitialCards";
+        
         public static Color GetColor(int colorChoice)
         {
             switch (colorChoice)

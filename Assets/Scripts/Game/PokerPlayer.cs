@@ -15,6 +15,9 @@ namespace Photon.Pun.Poker
         [SerializeField]
         private Transform _cameraPosition;
 
+        [SerializeField]
+        private CardSlot[] _holeCardSlots;
+        
         private GameManager _gameManager;
 
         private ControlPanel _controlPanel;
@@ -23,6 +26,10 @@ namespace Photon.Pun.Poker
 
         private Dictionary<Action.ActionTypes, double> _amountMap;
 
+        public CardSlot[] HoleCardSlots
+        {
+            get { return _holeCardSlots; }
+        }
 
         public void Awake()
         {
@@ -76,8 +83,11 @@ namespace Photon.Pun.Poker
                 GameObject mainCamera = GameObject.FindWithTag("MainCamera");
                 mainCamera.transform.SetPositionAndRotation(_cameraPosition.transform.position, _cameraPosition.transform.rotation);
 
-                // Set local player with player tag
-                gameObject.tag = "Player";
+                Hashtable props = new Hashtable
+                {
+                    {PokerGame.PLAYER_INSTANTIATED_CHARACTOR, true}
+                };
+                PhotonNetwork.LocalPlayer.SetCustomProperties(props);
             }
         }
 
