@@ -4,8 +4,9 @@ using UnityEngine.UI;
 using ExitGames.Client.Photon;
 using Photon.Realtime;
 using Photon.Pun.UtilityScripts;
+using Photon.Pun;
 
-namespace Photon.Pun.Poker
+namespace PokerBattleField
 {
     public class PlayerListEntry : MonoBehaviour
     {

@@ -3,8 +3,9 @@ using Photon.Realtime;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Photon.Pun;
 
-namespace Photon.Pun.Poker
+namespace PokerBattleField
 {
     public class LobbyMainPanel : MonoBehaviourPunCallbacks
     {
@@ -88,7 +89,7 @@ namespace Photon.Pun.Poker
         {
             string roomName = "Room " + Random.Range(1000, 10000);
 
-            RoomOptions options = new RoomOptions {MaxPlayers = 8};
+            RoomOptions options = new RoomOptions {MaxPlayers = 6};
 
             PhotonNetwork.CreateRoom(roomName, options, null);
         }

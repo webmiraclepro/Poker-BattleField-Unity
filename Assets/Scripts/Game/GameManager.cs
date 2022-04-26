@@ -14,7 +14,7 @@ using PhotonPeer = ExitGames.Client.Photon.PhotonPeer;
 using HoldemEngine;
 using PokerAction = HoldemEngine.Action;
 
-namespace Photon.Pun.Poker 
+namespace PokerBattleField 
 {
     public class GameManager : MonoBehaviourPunCallbacks
     {
@@ -45,6 +45,9 @@ namespace Photon.Pun.Poker
         [SerializeField]
         private CardDealer _cardDealer;
 
+        [SerializeField]
+        private GameObject _gameOverPanel;
+        
         private int _currentPlayer;
 
         private PokerPlayer _player;
@@ -305,7 +308,9 @@ namespace Photon.Pun.Poker
         [PunRPC]
         public void GameOver(string history)
         {
-            _player.GameOver(history);
+            _player.SetActive(false);
+            _gameOverPanel.SetActive(true);
+            _gameOverPanel.GetComponent<GameOverPanel>().SetInfoText(history);
         }
     }
 }

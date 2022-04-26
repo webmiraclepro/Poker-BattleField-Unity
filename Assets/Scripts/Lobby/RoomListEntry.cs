@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using Photon.Pun;
 
-namespace Photon.Pun.Poker
+namespace PokerBattleField
 {
     public class RoomListEntry : MonoBehaviour
     {
