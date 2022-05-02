@@ -9,11 +9,11 @@ public class CardSlot : MonoBehaviour
 	[SerializeField]
 	private bool _inverseStack;
 
-	[Range(0.05f, 0.3f)]
+	[Range(0.05f, 0.95f)]
 	[SerializeField]
 	private float _positionDamp = .05f;
 
-	[Range(0.05f, 0.3f)]
+	[Range(0.05f, 0.95f)]
 	[SerializeField] 
 	private float _rotationDamp = .05f;   
 	

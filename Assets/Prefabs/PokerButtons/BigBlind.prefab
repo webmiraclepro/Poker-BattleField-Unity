@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4426158492718971954}
   - component: {fileID: 775468128537195415}
   - component: {fileID: 3253836911349352285}
+  - component: {fileID: -3201354097497678382}
   m_Layer: 0
   m_Name: BigBlind
   m_TagString: Untagged
@@ -82,6 +83,18 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &-3201354097497678382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3902104225217767048}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77925fb11168f8648b84d409785a0613, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4244192742255087671
 GameObject:
   m_ObjectHideFlags: 0

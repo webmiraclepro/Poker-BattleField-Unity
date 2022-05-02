@@ -64,6 +64,7 @@ namespace HoldemEngine
                 {
                     _buttonIdx = i;
                     _utgIdx = (i + 1) % _seats.Length;
+                    _history.DealerIndex = _buttonIdx;
                 }
             }
             for (int i = (_buttonIdx + 1) % _seats.Length; _playerIndices.Count < _seats.Length;)
@@ -77,8 +78,11 @@ namespace HoldemEngine
             _potManager = new PotManager(_seats);
             #endregion
 
-            
+        }
+        #endregion
 
+        public void Predeal()
+        {
             if (_betManager.In > 1)
             {
                 GetBlinds();
@@ -89,9 +93,6 @@ namespace HoldemEngine
 
             _playerIdx = GetFirstToAct(true);
         }
-        #endregion
-
-
 
         public Round Bet(Action.ActionTypes actionType, double amount)
         {
@@ -111,11 +112,11 @@ namespace HoldemEngine
                 else
                 {
                     _playerIdx = _playerIndices.Next;
-                    return Round.Predeal;
+                    return Round.NextTurn;
                 }
             }
 
-            return Round.Predeal;
+            return Round.NextTurn;
         }
 
         private Round HandleRoundOver()
@@ -280,14 +281,18 @@ namespace HoldemEngine
                     AddAction(_bbIdx, 
                               new Action(_seats[_bbIdx].Name, Action.ActionTypes.PostSmallBlind, _history.SmallBlind),
                               _history.PredealActions);
+                    _history.SmallBlindIndex = _bbIdx;
                 }
                 _bbIdx = _playerIndices.Next;
             }
             if (_history.BigBlind > 0)
-                if (_playerIndices.Contains(_bbIdx))
+                if (_playerIndices.Contains(_bbIdx)) 
+                {
                     AddAction(_bbIdx, 
                               new Action(_seats[_bbIdx].Name, Action.ActionTypes.PostBigBlind, _history.BigBlind), 
                               _history.PredealActions);
+                    _history.BigBlindIndex = _bbIdx;               
+                }
         }
 
         public void DealHoleCards()

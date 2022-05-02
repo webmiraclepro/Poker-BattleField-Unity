@@ -11,6 +11,7 @@ namespace HoldemEngine
         Flop,
         Turn,
         River,
-        Over
+        Over,
+        NextTurn
     }
 }

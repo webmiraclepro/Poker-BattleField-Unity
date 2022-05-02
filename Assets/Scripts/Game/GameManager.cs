@@ -24,7 +24,7 @@ namespace PokerBattleField
         private HandHistory _history;
         private Seat[] _seats;
         private ulong _handNumber = 0;
-        private uint _button = 0;
+        private int _button = 1;
         private readonly int _initChips = 1000;
 
         [SerializeField]
@@ -48,6 +48,15 @@ namespace PokerBattleField
         [SerializeField]
         private GameObject _gameOverPanel;
         
+        [SerializeField]
+        private PokerButton _bigBlindButton;
+        
+        [SerializeField]
+        private PokerButton _smallBlindButton;
+        
+        [SerializeField]
+        private PokerButton _dealerButton;
+
         private int _currentPlayer;
 
         private PokerPlayer _player;
@@ -124,6 +133,8 @@ namespace PokerBattleField
             {
                 if (CheckPlayersStatus(changedProps, PokerGame.PLAYER_DEALT_INITIAL_CARDS))
                 {
+                    _engine.Predeal();
+
                     string[] holeCards = new string[_history.HoleCards.Length];
                     for (int i = 0; i < _history.HoleCards.Length; i++)
                     {
@@ -131,6 +142,8 @@ namespace PokerBattleField
                     }
 
                     photonView.RPC("DealHoleCards", RpcTarget.All, holeCards);
+                    photonView.RPC("Predeal", RpcTarget.All, _history.DealerIndex, _history.SmallBlindIndex, _history.BigBlindIndex);
+
                     UpdateNextPlayer();
                 }
             }
@@ -152,6 +165,28 @@ namespace PokerBattleField
                 {
                     card1.Toggle();
                     card2.Toggle();
+                }
+            }
+        }
+
+        [PunRPC]
+        public void Predeal(int dealerIdx, int smIdx, int bbIdx)
+        {
+            foreach (GameObject pObj in GameObject.FindGameObjectsWithTag("Player"))
+            {
+                PokerPlayer pp = pObj.GetComponent<PokerPlayer>();
+
+                if (pp.ID == dealerIdx)
+                {
+                    pp.ButtonSlot.Button = _dealerButton;
+                }
+                else if (pp.ID == smIdx)
+                {
+                    pp.ButtonSlot.Button = _smallBlindButton;
+                }
+                else if (pp.ID == bbIdx)
+                {
+                    pp.ButtonSlot.Button = _bigBlindButton;
                 }
             }
         }
@@ -290,6 +325,7 @@ namespace PokerBattleField
                     UpdateNextPlayer();
                     break;
 
+                case Round.NextTurn:
                 default:
                     UpdateNextPlayer();
                     break;

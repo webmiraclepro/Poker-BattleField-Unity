@@ -46,7 +46,7 @@ namespace HoldemEngine
         }
         #endregion
 
-        public TournamentHandHistory(Seat[] players, ulong handNumber, uint button, double[] blinds, double ante, BettingStructure bs)
+        public TournamentHandHistory(Seat[] players, ulong handNumber, int button, double[] blinds, double ante, BettingStructure bs)
             : base(players, handNumber, button, blinds, ante, bs)
         {
         }

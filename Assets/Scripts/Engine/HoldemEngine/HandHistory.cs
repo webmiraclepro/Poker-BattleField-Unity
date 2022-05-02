@@ -16,10 +16,13 @@ namespace HoldemEngine
 
         #region Member Variables
         private ulong handNumber;
-        private uint button;
+        private int button;
         private double stakes;
         private double smallBlind;
         private double bigBlind;
+        private int dealerIndex;
+        private int smallBlindIndex;
+        private int bigBlindIndex;
         private double[] allBlinds;
         private double ante;
         private double pot;
@@ -208,7 +211,26 @@ namespace HoldemEngine
             set { smallBlind = value; }
         }
 
-        public uint Button
+        public int DealerIndex
+        {
+            get { return dealerIndex; }
+            set { dealerIndex = value; }
+        }
+    
+        public int BigBlindIndex
+        {
+            get { return bigBlindIndex; }
+            set { bigBlindIndex = value; }
+        }
+    
+
+        public int SmallBlindIndex
+        {
+            get { return smallBlindIndex; }
+            set { smallBlindIndex = value; }
+        }
+
+        public int Button
         {
             get { return button; }
             set { button = value; }
@@ -231,7 +253,7 @@ namespace HoldemEngine
         #endregion
 
         #region Constructors
-        public HandHistory(Seat[] players, ulong handNumber, uint button, double[] blinds, double ante, BettingStructure bs)
+        public HandHistory(Seat[] players, ulong handNumber, int button, double[] blinds, double ante, BettingStructure bs)
         {
             this.button = button;
             predealActions = new List<Action>();

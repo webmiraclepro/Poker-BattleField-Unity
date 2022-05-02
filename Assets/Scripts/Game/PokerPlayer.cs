@@ -18,6 +18,11 @@ namespace PokerBattleField
         [SerializeField]
         private CardSlot[] _holeCardSlots;
         
+        [SerializeField]
+        public PokerButtonSlot _buttonSlot;
+
+        private int _id = 0;
+
         private GameManager _gameManager;
 
         private ControlPanel _controlPanel;
@@ -26,13 +31,17 @@ namespace PokerBattleField
 
         private Dictionary<Action.ActionTypes, double> _amountMap;
 
+
         public CardSlot[] HoleCardSlots
         {
             get { return _holeCardSlots; }
         }
 
+        public PokerButtonSlot ButtonSlot { get { return _buttonSlot; } }
+
         public int ID { get { return _id; } }
-        private int _id;
+        
+
 
         public void Awake()
         {
@@ -78,7 +87,7 @@ namespace PokerBattleField
 
         public void OnPhotonInstantiate(PhotonMessageInfo info)
         {
-            _id = info.Sender.ActorNumber - 1;
+            _id = (int) info.Sender.ActorNumber - 1;
 
             // Set player parent hierachy for keeping local world
             gameObject.transform.SetParent(GameObject.Find("PlayerSlots").transform);
