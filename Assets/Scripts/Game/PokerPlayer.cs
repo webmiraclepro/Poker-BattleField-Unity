@@ -31,6 +31,9 @@ namespace PokerBattleField
             get { return _holeCardSlots; }
         }
 
+        public int ID { get { return _id; } }
+        private int _id;
+
         public void Awake()
         {
             _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -75,6 +78,8 @@ namespace PokerBattleField
 
         public void OnPhotonInstantiate(PhotonMessageInfo info)
         {
+            _id = info.Sender.ActorNumber - 1;
+
             // Set player parent hierachy for keeping local world
             gameObject.transform.SetParent(GameObject.Find("PlayerSlots").transform);
 
