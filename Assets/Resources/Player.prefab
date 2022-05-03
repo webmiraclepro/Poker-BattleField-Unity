@@ -3035,6 +3035,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rotationDamp: 0.1
+  _movementDamp: 0.1
 --- !u!1 &7919918415167989598
 GameObject:
   m_ObjectHideFlags: 0

@@ -23,6 +23,8 @@ namespace PokerBattleField
 
         private int _id = 0;
 
+        private static int counter = 0;
+
         private GameManager _gameManager;
 
         private ControlPanel _controlPanel;
@@ -45,6 +47,8 @@ namespace PokerBattleField
 
         public void Awake()
         {
+            _id = PokerPlayer.counter;
+            PokerPlayer.counter++;
             _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
             _controlPanel = GameObject.Find("ControlPanel").GetComponent<ControlPanel>();
 

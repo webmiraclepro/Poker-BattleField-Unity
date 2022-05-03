@@ -15,14 +15,20 @@ namespace HoldemEngine
     {
         #region Member Variables
         Seat[] _seats;
+        double[] _blinds;
+        BettingStructure _bs;
+        double _ante;
         BetManager _betManager;
         PotManager _potManager;
         HandHistory _history;
+        List<HandHistory> _histories;
         CircularList<int> _playerIndices;
         int _buttonIdx;
         int _utgIdx;
         int _bbIdx;
+        int _sbIdx;
         int _playerIdx;
+        ulong _handNumber;
         #endregion
 
 
@@ -32,57 +38,75 @@ namespace HoldemEngine
         {
             get { return _playerIdx; }
         }
+        public HandHistory History
+        {
+            get { return _history; }
+        }
+        public int BtnIdx
+        {
+            get { return _buttonIdx; }
+        }
+        public int SbIdx
+        {
+            get { return _sbIdx; }
+        }
+        public int BbIdx
+        {
+            get { return _bbIdx; }
+        }
         #endregion
 
         
-
-        #region Constructors
-        public HandEngine(HandHistory handHistory)
+        public HandEngine(Seat[] players, double[] blinds, double ante, BettingStructure bs)
         {
-            #region Hand Setup
-            _seats = handHistory.Players;
-            handHistory.HoleCards = new ulong[_seats.Length];
-            handHistory.DealtCards = 0UL;
-            handHistory.Flop = 0UL;
-            handHistory.Turn = 0UL;
-            handHistory.River = 0UL;
+            _buttonIdx = 0;
+            _handNumber = 0;
+            _seats = players;
+            _blinds = blinds;
+            _bs = bs;
+            _ante = ante;
+            _histories = new List<HandHistory>();
+        }
 
-            //Setup the hand _history
-            this._history = handHistory;
+        public void InitRound()
+        {
+            // If current round is not going at first
+            if (_histories.Count > 0)
+            {
+                _buttonIdx = (_buttonIdx + 1) % _seats.Length;
+                _handNumber += 1;
+            }
 
-            //Create a new map from player names to player chips for the BetManager
-            Dictionary<string, double> namesToChips = new Dictionary<string, double>();
+            // Setup HandHistory
+            _history = new HandHistory(_seats, _handNumber, _buttonIdx, _blinds, _ante, _bs);
+            _histories.Add(_history);
 
-            //Create a new list of players for the PlayerManager
+            // Create a new list of players for the PlayerManager
             _playerIndices = new CircularList<int>();
             _playerIndices.Loop = true;
 
-            for (int i = 0; i < _seats.Length; i++)
-            {
-                namesToChips[_seats[i].Name] = _seats[i].Chips;
-                if (_seats[i].SeatNumber == _history.Button)
-                {
-                    _buttonIdx = i;
-                    _utgIdx = (i + 1) % _seats.Length;
-                    _history.DealerIndex = _buttonIdx;
-                }
-            }
             for (int i = (_buttonIdx + 1) % _seats.Length; _playerIndices.Count < _seats.Length;)
             {
                 _playerIndices.Add(i);
                 i = (i + 1) % _seats.Length;
             }
 
+            // Create a new map from player names to player chips for the BetManager
+            Dictionary<string, double> namesToChips = new Dictionary<string, double>();
+            
+            for (int i = 0; i < _seats.Length; i++)
+            {
+                namesToChips[_seats[i].Name] = _seats[i].Chips;
+
+                if (_buttonIdx == i)
+                {
+                    _utgIdx = (i + 1) % _seats.Length;
+                }
+            }
 
             _betManager = new BetManager(namesToChips, _history.BettingStructure, _history.AllBlinds, _history.Ante);
             _potManager = new PotManager(_seats);
-            #endregion
-
-        }
-        #endregion
-
-        public void Predeal()
-        {
+            
             if (_betManager.In > 1)
             {
                 GetBlinds();
@@ -171,7 +195,7 @@ namespace HoldemEngine
                 return Round.River;
             }
 
-            return Round.Predeal;
+            return Round.NextTurn;
         }
 
         private void payWinners()
@@ -266,33 +290,35 @@ namespace HoldemEngine
         /// </summary>
         public void GetBlinds()
         {
-            if (_history.Ante > 0)
+            if (_history.Ante > 0) 
+            {
                 for (int i = _utgIdx, count = 0; count < _seats.Length; i = (i + 1) % _seats.Length, count++)
+                {
                     AddAction(i, new Action(_seats[i].Name, Action.ActionTypes.PostAnte, _history.Ante), _history.PredealActions);
+                }
+            }
 
             // If there is no small blind, the big blind is the utg player, otherwise they're utg+1
-            _bbIdx = _playerIndices.Next;
+            _sbIdx = _playerIndices.Next;
+            
             if (_history.SmallBlind > 0)
             {
-                
                 // If there was an ante and the small blind was put all-in, they can't post the small blind
                 if (_playerIndices.Contains(_utgIdx))
                 {
-                    AddAction(_bbIdx, 
-                              new Action(_seats[_bbIdx].Name, Action.ActionTypes.PostSmallBlind, _history.SmallBlind),
+                    AddAction(_sbIdx, 
+                              new Action(_seats[_sbIdx].Name, Action.ActionTypes.PostSmallBlind, _history.SmallBlind),
                               _history.PredealActions);
-                    _history.SmallBlindIndex = _bbIdx;
                 }
                 _bbIdx = _playerIndices.Next;
             }
-            if (_history.BigBlind > 0)
-                if (_playerIndices.Contains(_bbIdx)) 
-                {
-                    AddAction(_bbIdx, 
-                              new Action(_seats[_bbIdx].Name, Action.ActionTypes.PostBigBlind, _history.BigBlind), 
-                              _history.PredealActions);
-                    _history.BigBlindIndex = _bbIdx;               
-                }
+
+            if (_history.BigBlind > 0 && _playerIndices.Contains(_bbIdx))
+            {
+                AddAction(_bbIdx, 
+                          new Action(_seats[_bbIdx].Name, Action.ActionTypes.PostBigBlind, _history.BigBlind), 
+                          _history.PredealActions);
+            }
         }
 
         public void DealHoleCards()

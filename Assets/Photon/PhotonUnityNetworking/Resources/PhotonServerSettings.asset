@@ -62,6 +62,9 @@ MonoBehaviour:
   - ShowOtherHoleCards
   - GameOver
   - Predeal
+  - RoundOver
+  - SetDealerBlinds
+  - SetDealerAndBlinds
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

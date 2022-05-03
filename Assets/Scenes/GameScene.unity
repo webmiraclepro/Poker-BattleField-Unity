@@ -2153,6 +2153,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86aba39379844aa428b0d3c0a3d92534, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _initChips: 1000
   _blinds:
   - 10
   - 20
@@ -2268,7 +2269,7 @@ Transform:
   - {fileID: 1386153453}
   - {fileID: 1571257178}
   m_Father: {fileID: 543450652830613426}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1140082576
 PrefabInstance:
@@ -4558,8 +4559,8 @@ Transform:
   - {fileID: 543450652262759427}
   - {fileID: 1509813189}
   - {fileID: 1897955233}
-  - {fileID: 7974990507230891266}
   - {fileID: 1036355110}
+  - {fileID: 7974990507230891266}
   - {fileID: 993119786}
   m_Father: {fileID: 0}
   m_RootOrder: 5
@@ -4733,6 +4734,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1144936563}
     m_Modifications:
+    - target: {fileID: -5868385222919221950, guid: 1635fbbdcc706a34aa466a5d804565c1, type: 3}
+      propertyPath: _movementDamp
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 1620165940506003926, guid: 1635fbbdcc706a34aa466a5d804565c1, type: 3}
       propertyPath: m_Name
       value: Dealer
@@ -4841,6 +4846,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1144936563}
     m_Modifications:
+    - target: {fileID: -7109820922968205856, guid: 12df53af959283043a9813fca5e3278a, type: 3}
+      propertyPath: _movementDamp
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 3948879144977684675, guid: 12df53af959283043a9813fca5e3278a, type: 3}
       propertyPath: m_Name
       value: SmallBlind
@@ -4909,6 +4918,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1144936563}
     m_Modifications:
+    - target: {fileID: -3201354097497678382, guid: 6540f4a4b784d3343bee2b3858b0ab9e, type: 3}
+      propertyPath: _movementDamp
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 3253836911349352285, guid: 6540f4a4b784d3343bee2b3858b0ab9e, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -5089,7 +5102,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4509874573938638714, guid: c15f0ee33baeec149b61e8d6189748f1, type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 4509874573938638714, guid: c15f0ee33baeec149b61e8d6189748f1, type: 3}
       propertyPath: m_LocalScale.x
