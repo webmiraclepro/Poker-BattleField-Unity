@@ -15,8 +15,9 @@ public class Card : MonoBehaviour
 
 	public Texture mTexture { get; set; }
 
-	private void Awake(){
-		this.tag = "card";	
+	private void Awake()
+	{
+		this.tag = "Card";	
 	}
 
 	public Transform TargetTransform 
@@ -73,7 +74,7 @@ public class Card : MonoBehaviour
 		newRotation.eulerAngles = eulerAngles;
 		TargetTransform.rotation = newRotation;
 	}
-	
+
 	private void SmoothToTargetPositionRotation()
 	{
 		if (TargetTransform.position != transform.position || TargetTransform.eulerAngles != transform.eulerAngles)

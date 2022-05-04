@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.IO;
 using PokerBattleField;
+using System.Threading.Tasks;
 
 namespace PokerBattleField
 {
@@ -20,82 +21,92 @@ namespace PokerBattleField
         private CardSlot _leftHandCardSlot;
 
         [SerializeField]
-        private CardSlot[] _holeCardSlots;
+        private CardSlot[] _flopCardSlots;
 
-        private CardSlot[] _dealtCardSlots;
+        [SerializeField]
+        private CardSlot _turnCardSlot;
 
-        private const float CardStackDelay = .0001f;
-
-        public int DealInProgress { get; set; }
-
-        private void Awake()
-        {
-            _cardDeck.InstanatiateDeck();
-        }
-
-        public void StartInitialDealing(System.Action cb)
-        {
-            StartCoroutine(DealInitialCards(cb));
-        }
-
-        private void MoveCardSlotToCardSlot(CardSlot sourceCardSlot, CardSlot targerCardSlot) 
-        {
-            Card card;
-            
-            while ((card = sourceCardSlot.TopCard()) != null)
-            {
-                targerCardSlot.AddCard(card);
-            }
-        }
+        [SerializeField]
+        private CardSlot _riverCardSlot;
         
-        private IEnumerator DealInitialCards(System.Action Callback) 
+        public async Task Initialize() 
         {
-            DealInProgress++;
-            
+            foreach(GameObject slotObj in GameObject.FindGameObjectsWithTag("CardSlot"))
+            {
+                slotObj.GetComponent<CardSlot>().Clear();
+            }
+            _cardDeck.CardList.Clear();
+            _cardDeck.InstanatiateDeck();
+
             for (int i = 0; i < _cardDeck.CardList.Count; ++i)
             {
                 _stackCardSlot.AddCard(_cardDeck.CardList[i]);
-                yield return new WaitForSeconds(CardStackDelay);
+                await Task.Delay(1);
             }
 
-            yield return new WaitForSeconds(1f);
-            yield return StartCoroutine(ShuffleCoroutine());
+            await Task.Delay(1000);
 
-            yield return new WaitForSeconds(1f);
-            foreach(GameObject player in GameObject.FindGameObjectsWithTag("Player"))
+            PokerGame.SetPlayerStatus(PokerGame.CARD_DEALER_READY, true);
+        }
+
+        public async Task DealHoleCards(string[] holeCards)
+        {
+            foreach(GameObject pObj in GameObject.FindGameObjectsWithTag("Player"))
             {
-                foreach (CardSlot hole in player.GetComponent<PokerPlayer>().HoleCardSlots)
-                {
-                    hole.AddCard(_stackCardSlot.TopCard());
-                    yield return new WaitForSeconds(.5f);
-                }
+                PokerPlayer pp = pObj.GetComponent<PokerPlayer>();
+                string[] cards = holeCards[pp.ID].Split(new char[] { ' ' });
+
+                Card card1 = _stackCardSlot.TopCard();
+                card1.FaceValue = cards[0];
+                pp.HoleCardSlots[0].AddCard(card1);
+                await Task.Delay(100);
+
+                Card card2 = _stackCardSlot.TopCard();
+                card2.FaceValue = cards[1];
+                pp.HoleCardSlots[1].AddCard(card2);
+                await Task.Delay(100);
             }
 
-            yield return new WaitForSeconds(2f);
-            yield return StartCoroutine(DealCommunityCardSlots());
+            await Task.Delay(1000);
 
-            DealInProgress--;
-            Callback();
+            PokerGame.SetPlayerStatus(PokerGame.DEALT_HOLE_CARDS, true);
         }
 
-        public IEnumerator GatherAllCardsCoroutine()
+        public async Task DealFlopCards(string[] flopCards)
         {
-            DealInProgress++;
+            for (int i = 0; i < flopCards.Length; i++)
+            {
+                Card card = _stackCardSlot.TopCard();
+                card.FaceValue = flopCards[i];
 
-            MoveCardSlotToCardSlot(_rightHandCardSlot, _stackCardSlot);
-            MoveCardSlotToCardSlot(_leftHandCardSlot, _stackCardSlot);
+                _flopCardSlots[i].AddCard(card);
 
-            yield return new WaitForSeconds(.1f);
+                await Task.Delay(500);
+            }
 
-            DealInProgress--;
+            await Task.Delay(500);
         }
 
-        public IEnumerator ShuffleCoroutine()
+        public async Task DealTurnCard(string turnCard)
         {
-            DealInProgress++;
+            Card card = _stackCardSlot.TopCard();
+            card.FaceValue = turnCard;
+            _turnCardSlot.AddCard(card);
 
-            yield return StartCoroutine(GatherAllCardsCoroutine());
+            await Task.Delay(1000);
+        }
 
+        public async Task DealRiverCard(string riverCard)
+        {
+            Card card = _stackCardSlot.TopCard();
+            card.FaceValue = riverCard;
+            _riverCardSlot.AddCard(card);
+
+            await Task.Delay(1000);
+        }
+
+        public async Task ShuffleCards()
+        {
             int halfLength = _stackCardSlot.CardList.Count / 2;
             int fullLength = _stackCardSlot.CardList.Count;
 
@@ -104,111 +115,26 @@ namespace PokerBattleField
                 _leftHandCardSlot.AddCard(_stackCardSlot.TopCard());
             }
             
-            yield return new WaitForSeconds(.01f);  
+            await Task.Delay(100);
             
             for (int i = 0; i < halfLength; ++i)
             {
                 _rightHandCardSlot.AddCard(_stackCardSlot.TopCard());
             }
             
-            yield return new WaitForSeconds(.01f);  
+            await Task.Delay(100);
 
-            _stackCardSlot.AddCard(_stackCardSlot.TopCard());//jic odd
+            _stackCardSlot.AddCard(_stackCardSlot.TopCard());
             
-            yield return new WaitForSeconds(CardStackDelay);
+            await Task.Delay(1);
             
             for (int i = 0; i < fullLength; ++i)
             {
-                if (i % 2 == 0)
-                {
-                    _stackCardSlot.AddCard(_rightHandCardSlot.TopCard());
-                }
-                else
-                {
-                    _stackCardSlot.AddCard(_leftHandCardSlot.TopCard());
-                }
-                yield return new WaitForSeconds(CardStackDelay);
+                _stackCardSlot.AddCard((i % 2 == 0 ? _rightHandCardSlot : _leftHandCardSlot).TopCard());
+                await Task.Delay(1);
             }
 
-            yield return new WaitForSeconds(.01f);
-
-            DealInProgress--;
-        }
-
-        public IEnumerator CutDeckCoroutine()
-        {
-            DealInProgress++;
-            
-            int halfLength = _cardDeck.CardList.Count / 2;
-            int thirdLength = _cardDeck.CardList.Count / 3;
-            int randomLength = Random.Range(thirdLength, halfLength);
-
-            for (int i = 0; i < randomLength; ++i)
-            {
-                _leftHandCardSlot.AddCard(_stackCardSlot.TopCard());
-            }
-
-            yield return new WaitForSeconds(.5f);   
-            
-            for (int i = 0; i < (_cardDeck.CardList.Count - randomLength); ++i)
-            {
-                _rightHandCardSlot.AddCard(_stackCardSlot.TopCard());
-            }
-
-            yield return new WaitForSeconds(.1f);
-            
-            for (int i = 0; i < randomLength; ++i)
-            {
-                _stackCardSlot.AddCard(_leftHandCardSlot.TopCard());
-                yield return new WaitForSeconds(CardStackDelay);
-            }
-            
-            yield return new WaitForSeconds(.5f);
-            
-            for (int i = 0; i < (_cardDeck.CardList.Count - randomLength); ++i)
-            {
-                _stackCardSlot.AddCard(_rightHandCardSlot.TopCard());
-                yield return new WaitForSeconds(CardStackDelay);
-            }
-            
-            DealInProgress--;
-        }
-
-        public IEnumerator DealCommunityCardSlots()
-        {
-            DealInProgress++;
-
-            foreach (CardSlot slot in _holeCardSlots)
-            {
-                slot.AddCard(_stackCardSlot.TopCard());
-                yield return new WaitForSeconds(.5f);
-            }
-
-            yield return new WaitForSeconds(.1f);
-
-            DealInProgress--;
-        }
-
-        void FlipCardSlotUp(CardSlot mCardSlot)
-        {
-            int number = Random.Range(0,2);
-            float y = number == 1 ? 0f : -180f;
-            float z = mCardSlot.GetComponent<Transform>().rotation.eulerAngles.z;
-            Quaternion rot = transform.localRotation;
-            rot.eulerAngles = new Vector3(90f, y, z);
-            Transform tTemp = mCardSlot.GetComponent<Transform>();
-            tTemp.rotation = rot;
-            mCardSlot.TopCard().TargetTransform.rotation = rot;
-        }
-
-        void FlipCardSlotDown(CardSlot mCardSlot)
-        {
-            float y = mCardSlot.GetComponent<Transform>().rotation.eulerAngles.y;
-            float z = mCardSlot.GetComponent<Transform>().rotation.eulerAngles.z;
-            Quaternion rot = transform.localRotation;
-            rot.eulerAngles = new Vector3 (270f, y, z);
-            Transform tTemp = mCardSlot.GetComponent<Transform>();
-            tTemp.rotation = rot;
+            await Task.Delay(100);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using UnityEngine;
 using UnityEngine.UI;
@@ -33,15 +34,6 @@ namespace PokerBattleField
         private Transform[] _playerSlots;
 
         [SerializeField]
-        private CardSlot[] _flopCardSlots;
-
-        [SerializeField]
-        private CardSlot _turnCardSlot;
-
-        [SerializeField]
-        private CardSlot _riverCardSlot;
-
-        [SerializeField]
         private CardDealer _cardDealer;
 
         [SerializeField]
@@ -60,13 +52,13 @@ namespace PokerBattleField
 
         private PokerPlayer _player;
 
-        private void Awake()
+        void Awake()
         {
             Instance = this;
             PhotonPeer.RegisterType(typeof(PokerAction), (byte)'A', PokerAction.Serialize, PokerAction.Deserialize);
         }
 
-        public void Start()
+        void Start()
         {
             SpawnPlayer();
 
@@ -84,7 +76,8 @@ namespace PokerBattleField
             if (playerIdx >= 0 && playerIdx < _playerSlots.Length)
             {
                 Transform transform = _playerSlots[playerIdx];
-                _player = PhotonNetwork.Instantiate("Player", transform.position, transform.rotation).GetComponent<PokerPlayer>();
+                GameObject pObj = PhotonNetwork.Instantiate("Player", transform.position, transform.rotation);
+                _player = pObj.GetComponent<PokerPlayer>();
             }
         }
 
@@ -112,14 +105,17 @@ namespace PokerBattleField
             }
         }
 
+        private async Task InitCardDeck()
+        {
+            await _cardDealer.Initialize();
+        }
+
         private void StartRound()
         {
             // StartRound
             _engine.InitRound();
 
-            photonView.RPC("SetDealerAndBlinds", RpcTarget.All, _engine.BtnIdx, _engine.SbIdx, _engine.BbIdx);
-
-            // Set dealt hole cards
+            // Deal player hole cards
             string[] holeCards = new string[_engine.History.HoleCards.Length];
             
             for (int i = 0; i < _engine.History.HoleCards.Length; i++)
@@ -128,50 +124,42 @@ namespace PokerBattleField
             }
 
             photonView.RPC("DealHoleCards", RpcTarget.All, holeCards);
+        }  
 
+        private void InitPokerButtons()
+        {
+            // Set dealer, small blind and big blind
+            photonView.RPC("SetDealerAndBlinds", RpcTarget.All, _engine.BtnIdx, _engine.SbIdx, _engine.BbIdx);
+            
             // Let UTG player act at first 
             UpdateNextPlayer();
         }
 
         public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
         {
-            if (CheckPlayersStatus(changedProps, PokerGame.PLAYER_INSTANTIATED_CHARACTOR))
+            if (PokerGame.CheckPlayersStatus(changedProps, PokerGame.CHARACTER_READY))
             {
-                _cardDealer.StartInitialDealing(() => {
-                    Hashtable props = new Hashtable
-                    {
-                        {PokerGame.PLAYER_DEALT_INITIAL_CARDS, true}
-                    };
-                    PhotonNetwork.LocalPlayer.SetCustomProperties(props);
-                });
+                InitCardDeck();
             }
-
-            if (PhotonNetwork.IsMasterClient)
+            else if (PokerGame.CheckPlayersStatus(changedProps, PokerGame.CARD_DEALER_READY) && PhotonNetwork.IsMasterClient)
             {
-                if (CheckPlayersStatus(changedProps, PokerGame.PLAYER_DEALT_INITIAL_CARDS))
-                {
-                   StartRound();
-                }
+                StartRound();
+            }
+            else if (PokerGame.CheckPlayersStatus(changedProps, PokerGame.DEALT_HOLE_CARDS) && PhotonNetwork.IsMasterClient)
+            {
+                InitPokerButtons();
             }
         }
 
-        [PunRPC]
-        public void DealHoleCards(string[] holeCards)
-        {
-            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Player"))
-            {
-                PokerPlayer pp = obj.GetComponent<PokerPlayer>();
-                string[] cards = holeCards[pp.ID].Split(new char[] { ' ' });
-                Card card1 = pp.HoleCardSlots[0].TopCard();
-                Card card2 = pp.HoleCardSlots[1].TopCard();
-                card1.FaceValue = cards[0];
-                card2.FaceValue = cards[1];
 
-                if (pp.photonView.IsMine)
-                {
-                    card1.Toggle();
-                    card2.Toggle();
-                }
+        [PunRPC]
+        public async Task DealHoleCards(string[] holeCards)
+        {
+            await _cardDealer.DealHoleCards(holeCards);
+
+            foreach (CardSlot slot in _player.HoleCardSlots)
+            {
+                slot.TopCard().Toggle();
             }
         }
 
@@ -200,30 +188,19 @@ namespace PokerBattleField
         [PunRPC]
         public void DealFlopCards(string flopCards)
         {
-            string[] cards = flopCards.Split(new char[] { ' ' });
-            
-            for (int i = 0; i < cards.Length; i++)
-            {
-                Card card = _flopCardSlots[i].TopCard();
-                card.FaceValue = cards[i];
-                card.Toggle();
-            }
+            _cardDealer.DealFlopCards(flopCards.Split(new char[] { ' ' }));
         }
 
         [PunRPC]
         public void DealTurnCard(string turnCard)
         {
-            Card card = _turnCardSlot.TopCard();
-            card.FaceValue = turnCard;
-            card.Toggle();
+            _cardDealer.DealTurnCard(turnCard);
         }
 
         [PunRPC]
         public void DealRiverCard(string riverCard)
         {
-            Card card = _riverCardSlot.TopCard();
-            card.FaceValue = riverCard;
-            card.Toggle();
+            _cardDealer.DealRiverCard(riverCard);
         }
 
         [PunRPC]
@@ -243,40 +220,8 @@ namespace PokerBattleField
             }
         }
 
-        private bool CheckPlayersStatus(Hashtable changedProps, string statusKey)
-        {
-            if (!changedProps.ContainsKey(statusKey))
-            {
-                return false;
-            }
-            
-            foreach (Player p in PhotonNetwork.PlayerList)
-            {
-                object status;
-                
-                if (p.CustomProperties.TryGetValue(statusKey, out status))
-                {
-                    if (!(bool) status)
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         private void UpdateNextPlayer()
         {
-            if (!PhotonNetwork.IsMasterClient)
-            {
-                return;
-            }
-
             List<int> actionTypes = new List<int>();
             List<double> amounts = new List<double>();
 
@@ -301,11 +246,6 @@ namespace PokerBattleField
 
         public void DispatchAction(PokerAction.ActionTypes actionType, double amount)
         {
-            if (!PhotonNetwork.IsMasterClient)
-            {
-                return;
-            }
-
             Round round = _engine.Bet(actionType, amount);
             
             switch (round)
@@ -314,14 +254,13 @@ namespace PokerBattleField
                 case Round.River:
                     photonView.RPC("ShowOtherHoleCards", RpcTarget.All);
                     photonView.RPC("RoundOver", RpcTarget.All, _engine.History.ToString(true));
-                    StartRound();
                     break;
 
                 case Round.Preflop:
                     photonView.RPC("DealFlopCards", RpcTarget.All, HoldemHand.Hand.MaskToString(_engine.History.Flop));
                     UpdateNextPlayer();
                     break;
-
+    
                 case Round.Flop:
                      photonView.RPC("DealTurnCard", RpcTarget.All, HoldemHand.Hand.MaskToString(_engine.History.Turn));
                     UpdateNextPlayer();
@@ -358,9 +297,18 @@ namespace PokerBattleField
         [PunRPC]
         public void RoundOver(string history)
         {
+            PokerGame.SetPlayerStatus(PokerGame.CARD_DEALER_READY, false);
+            PokerGame.SetPlayerStatus(PokerGame.DEALT_HOLE_CARDS, false);
+
             _player.SetActive(false);
-            // _gameOverPanel.SetActive(true);
-            // _gameOverPanel.GetComponent<GameOverPanel>().SetInfoText(history);
+            _gameOverPanel.SetActive(true);
+            _gameOverPanel.GetComponent<GameOverPanel>().SetInfoText(history);
+        }
+
+        public void ContinueRound()
+        {
+            _gameOverPanel.SetActive(false);
+            InitCardDeck();
         }
     }
 }

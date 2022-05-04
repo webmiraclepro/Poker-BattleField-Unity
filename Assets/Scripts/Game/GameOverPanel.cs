@@ -8,7 +8,6 @@ public class GameOverPanel : MonoBehaviour
     [SerializeField]
     private Text _infoText;
 
-
     public void SetInfoText(string text)
     {
     	_infoText.text = text;

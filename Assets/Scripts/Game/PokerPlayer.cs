@@ -102,11 +102,7 @@ namespace PokerBattleField
                 GameObject mainCamera = GameObject.FindWithTag("MainCamera");
                 mainCamera.transform.SetPositionAndRotation(_cameraPosition.transform.position, _cameraPosition.transform.rotation);
 
-                Hashtable props = new Hashtable
-                {
-                    {PokerGame.PLAYER_INSTANTIATED_CHARACTOR, true}
-                };
-                PhotonNetwork.LocalPlayer.SetCustomProperties(props);
+                PokerGame.SetPlayerStatus(PokerGame.CHARACTER_READY, true);
             }
         }
 

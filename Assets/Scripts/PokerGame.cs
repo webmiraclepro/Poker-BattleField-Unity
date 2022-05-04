@@ -1,4 +1,7 @@
 ﻿using UnityEngine;
+using Photon.Pun;
+using Photon.Realtime;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 namespace PokerBattleField
 {
@@ -7,8 +10,9 @@ namespace PokerBattleField
         public const int PLAYER_NUMBER = 6;
         public const string PLAYER_READY = "IsPlayerReady";
         public const string PLAYER_LOADED_LEVEL = "PlayerLoadedLevel";
-        public const string PLAYER_INSTANTIATED_CHARACTOR = "PlayerInstantiatedCharactor";
-        public const string PLAYER_DEALT_INITIAL_CARDS = "PlayerDealtInitialCards";
+        public const string CHARACTER_READY = "CHARACTER_READY";
+        public const string CARD_DEALER_READY = "CARD_DEALER_READY";
+        public const string DEALT_HOLE_CARDS = "DEALT_HOLE_CARDS";
         
         public static Color GetColor(int colorChoice)
         {
@@ -25,6 +29,40 @@ namespace PokerBattleField
             }
 
             return Color.black;
+        }
+
+        public static void SetPlayerStatus(string prop, bool flag)
+        {
+            Hashtable props = new Hashtable { { prop, flag } };
+            PhotonNetwork.LocalPlayer.SetCustomProperties(props);
+        }
+
+        
+        public static bool CheckPlayersStatus(Hashtable changedProps, string statusKey)
+        {
+            if (!changedProps.ContainsKey(statusKey))
+            {
+                return false;
+            }
+            
+            foreach (Player p in PhotonNetwork.PlayerList)
+            {
+                object status;
+                
+                if (p.CustomProperties.TryGetValue(statusKey, out status))
+                {
+                    if (!(bool) status)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

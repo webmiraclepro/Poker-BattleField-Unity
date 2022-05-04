@@ -19,6 +19,7 @@ public class CardSlot : MonoBehaviour
 	
 	private void Awake()
 	{
+		this.tag = "CardSlot";
 		GetComponent<MeshRenderer>().enabled = false;
 	}
 
@@ -96,4 +97,15 @@ public class CardSlot : MonoBehaviour
 		card.ParentCardSlot = null;
 		CardList.Remove(card);
 	}
+
+	public void Clear()
+	{
+		foreach(Card card in CardList)
+		{
+			Destroy(card.gameObject);
+		}
+
+		CardList.Clear();
+	}
 }
+

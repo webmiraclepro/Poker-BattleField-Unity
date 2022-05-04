@@ -4,7 +4,8 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - card
+  - Card
+  - CardSlot
   layers:
   - Default
   - TransparentFX
