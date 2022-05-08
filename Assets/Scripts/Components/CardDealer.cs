@@ -36,7 +36,8 @@ namespace PokerBattleField
                 slotObj.GetComponent<CardSlot>().Clear();
             }
             _cardDeck.CardList.Clear();
-            _cardDeck.InstanatiateDeck();
+
+            await _cardDeck.InstanatiateDeck();
 
             for (int i = 0; i < _cardDeck.CardList.Count; ++i)
             {
@@ -47,6 +48,8 @@ namespace PokerBattleField
             await Task.Delay(1000);
 
             PokerGame.SetPlayerStatus(PokerGame.CARD_DEALER_READY, true);
+
+            
         }
 
         public async Task DealHoleCards(string[] holeCards)

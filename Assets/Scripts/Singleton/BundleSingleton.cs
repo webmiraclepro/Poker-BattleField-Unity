@@ -1,6 +1,9 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+
+using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 
 public class BundleSingleton : Singleton<BundleSingleton>
@@ -21,7 +24,7 @@ public class BundleSingleton : Singleton<BundleSingleton>
 		UnloadAllBundles();
 	}	
 
-	private AssetBundle GetBundle(string name)
+	public AssetBundle GetBundle(string name)
 	{
 		for (int i = 0; i < AssetBundleList.Count; ++i)
 		{
@@ -33,21 +36,41 @@ public class BundleSingleton : Singleton<BundleSingleton>
 		return null;
 	}
 
-	public AssetBundle LoadBundle(string path)
+	public async Task<AssetBundle> LoadBundle(string path)
 	{
 		string name = System.IO.Path.GetFileNameWithoutExtension(path);
 		AssetBundle assetBundle = GetBundle(name);
+		string assetPath = System.IO.Path.Combine(
+			Application.streamingAssetsPath, 
+			Application.platform == RuntimePlatform.WebGLPlayer ? "WebGL" : "StandaloneWindows",
+			path
+		);
+
 		if (assetBundle == null)
 		{
-			assetBundle = AssetBundle.LoadFromFile(System.IO.Path.Combine(Application.streamingAssetsPath, path));
+			if (Application.platform == RuntimePlatform.WebGLPlayer)
+			{
+				UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(assetPath);
+		        await www.SendWebRequest();
+		 
+		        if (www.result != UnityWebRequest.Result.Success) {
+		            Debug.Log(www.error);
+		        }
+		        else 
+		        {
+		            assetBundle = DownloadHandlerAssetBundle.GetContent(www);
+		        }
+			}
+			else
+			{
+				assetBundle = AssetBundle.LoadFromFile(assetPath);
+			}
+			
 			assetBundle.name = name;
 			AssetBundleList.Add(assetBundle);
-			return assetBundle;
 		}
-		else
-		{
-			return assetBundle;
-		}
+
+		return assetBundle;
 	}
 
 	private void UnloadAllBundles()

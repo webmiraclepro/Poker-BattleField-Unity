@@ -112,7 +112,7 @@ public class Card : MonoBehaviour
 
 	private void FrontBecameVisible()
 	{
-		AssetBundle cardBundle = BundleSingleton.Instance.LoadBundle(SourceAssetBundlePath);
+		AssetBundle cardBundle = BundleSingleton.Instance.GetBundle(SourceAssetBundlePath);
 		GetComponent<Renderer>().material.mainTexture = cardBundle.LoadAsset<Texture>(TexturePath);
 	}
 	
