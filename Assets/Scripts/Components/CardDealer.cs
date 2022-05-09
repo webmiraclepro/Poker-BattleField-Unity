@@ -29,7 +29,7 @@ namespace PokerBattleField
         [SerializeField]
         private CardSlot _riverCardSlot;
         
-        public async Task Initialize() 
+        public IEnumerator Initialize() 
         {
             foreach(GameObject slotObj in GameObject.FindGameObjectsWithTag("CardSlot"))
             {
@@ -37,22 +37,23 @@ namespace PokerBattleField
             }
             _cardDeck.CardList.Clear();
 
-            await _cardDeck.InstanatiateDeck();
+            yield return _cardDeck.InstanatiateDeck(_Initialize());
+        }
 
+        private IEnumerator _Initialize()
+        {
             for (int i = 0; i < _cardDeck.CardList.Count; ++i)
             {
                 _stackCardSlot.AddCard(_cardDeck.CardList[i]);
-                await Task.Delay(1);
+                yield return new WaitForSeconds(0.001f);
             }
 
-            await Task.Delay(1000);
+            yield return new WaitForSeconds(1f);
 
             PokerGame.SetPlayerStatus(PokerGame.CARD_DEALER_READY, true);
-
-            
         }
 
-        public async Task DealHoleCards(string[] holeCards)
+        public IEnumerator DealHoleCards(string[] holeCards, IEnumerator onSuccess)
         {
             foreach(GameObject pObj in GameObject.FindGameObjectsWithTag("Player"))
             {
@@ -62,20 +63,22 @@ namespace PokerBattleField
                 Card card1 = _stackCardSlot.TopCard();
                 card1.FaceValue = cards[0];
                 pp.HoleCardSlots[0].AddCard(card1);
-                await Task.Delay(100);
+                yield return new WaitForSeconds(0.1f);
 
                 Card card2 = _stackCardSlot.TopCard();
                 card2.FaceValue = cards[1];
                 pp.HoleCardSlots[1].AddCard(card2);
-                await Task.Delay(100);
+                yield return new WaitForSeconds(0.1f);
             }
 
-            await Task.Delay(1000);
+            yield return new WaitForSeconds(1f);
 
             PokerGame.SetPlayerStatus(PokerGame.DEALT_HOLE_CARDS, true);
+
+            yield return onSuccess;
         }
 
-        public async Task DealFlopCards(string[] flopCards)
+        public IEnumerator DealFlopCards(string[] flopCards)
         {
             for (int i = 0; i < flopCards.Length; i++)
             {
@@ -84,31 +87,31 @@ namespace PokerBattleField
 
                 _flopCardSlots[i].AddCard(card);
 
-                await Task.Delay(500);
+                yield return new WaitForSeconds(0.5f);
             }
 
-            await Task.Delay(500);
+            yield return new WaitForSeconds(0.5f);
         }
 
-        public async Task DealTurnCard(string turnCard)
+        public IEnumerator DealTurnCard(string turnCard)
         {
             Card card = _stackCardSlot.TopCard();
             card.FaceValue = turnCard;
             _turnCardSlot.AddCard(card);
 
-            await Task.Delay(1000);
+            yield return new WaitForSeconds(1f);
         }
 
-        public async Task DealRiverCard(string riverCard)
+        public IEnumerator DealRiverCard(string riverCard)
         {
             Card card = _stackCardSlot.TopCard();
             card.FaceValue = riverCard;
             _riverCardSlot.AddCard(card);
 
-            await Task.Delay(1000);
+            yield return new WaitForSeconds(1f);
         }
 
-        public async Task ShuffleCards()
+        public IEnumerator ShuffleCards()
         {
             int halfLength = _stackCardSlot.CardList.Count / 2;
             int fullLength = _stackCardSlot.CardList.Count;
@@ -118,26 +121,26 @@ namespace PokerBattleField
                 _leftHandCardSlot.AddCard(_stackCardSlot.TopCard());
             }
             
-            await Task.Delay(100);
+            yield return new WaitForSeconds(0.1f);
             
             for (int i = 0; i < halfLength; ++i)
             {
                 _rightHandCardSlot.AddCard(_stackCardSlot.TopCard());
             }
             
-            await Task.Delay(100);
+            yield return new WaitForSeconds(0.1f);
 
             _stackCardSlot.AddCard(_stackCardSlot.TopCard());
             
-            await Task.Delay(1);
+            yield return new WaitForSeconds(0.01f);
             
             for (int i = 0; i < fullLength; ++i)
             {
                 _stackCardSlot.AddCard((i % 2 == 0 ? _rightHandCardSlot : _leftHandCardSlot).TopCard());
-                await Task.Delay(1);
+                yield return new WaitForSeconds(0.001f);
             }
 
-            await Task.Delay(100);
+            yield return new WaitForSeconds(0.1f);
         }
     }
 }

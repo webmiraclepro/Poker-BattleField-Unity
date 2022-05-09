@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -36,7 +37,7 @@ public class BundleSingleton : Singleton<BundleSingleton>
 		return null;
 	}
 
-	public async Task<AssetBundle> LoadBundle(string path)
+	public IEnumerator LoadBundle(string path, Action<AssetBundle> onSuccess)
 	{
 		string name = System.IO.Path.GetFileNameWithoutExtension(path);
 		AssetBundle assetBundle = GetBundle(name);
@@ -51,7 +52,7 @@ public class BundleSingleton : Singleton<BundleSingleton>
 			if (Application.platform == RuntimePlatform.WebGLPlayer)
 			{
 				UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(assetPath);
-		        await www.SendWebRequest();
+		        yield return www.SendWebRequest();
 		 
 		        if (www.result != UnityWebRequest.Result.Success) {
 		            Debug.Log(www.error);
@@ -70,7 +71,7 @@ public class BundleSingleton : Singleton<BundleSingleton>
 			AssetBundleList.Add(assetBundle);
 		}
 
-		return assetBundle;
+		onSuccess(assetBundle);
 	}
 
 	private void UnloadAllBundles()

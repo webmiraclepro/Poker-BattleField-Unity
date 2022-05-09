@@ -105,9 +105,9 @@ namespace PokerBattleField
             }
         }
 
-        private async Task InitCardDeck()
+        private void InitCardDeck()
         {
-            await _cardDealer.Initialize();
+            StartCoroutine(_cardDealer.Initialize());
         }
 
         private void StartRound()
@@ -153,16 +153,20 @@ namespace PokerBattleField
 
 
         [PunRPC]
-        public async Task DealHoleCards(string[] holeCards)
+        public void DealHoleCards(string[] holeCards)
         {
-            await _cardDealer.DealHoleCards(holeCards);
+            StartCoroutine(_cardDealer.DealHoleCards(holeCards, _DealHoleCards()));
+        }
 
+        private IEnumerator _DealHoleCards()
+        {
             foreach (CardSlot slot in _player.HoleCardSlots)
             {
                 slot.TopCard().Toggle();
+                yield return new WaitForSeconds(0.1f);
             }
         }
-
+        
         [PunRPC]
         public void SetDealerAndBlinds(int dealerIdx, int sbIdx, int bbIdx)
         {
@@ -188,19 +192,19 @@ namespace PokerBattleField
         [PunRPC]
         public void DealFlopCards(string flopCards)
         {
-            _cardDealer.DealFlopCards(flopCards.Split(new char[] { ' ' }));
+            StartCoroutine(_cardDealer.DealFlopCards(flopCards.Split(new char[] { ' ' })));
         }
 
         [PunRPC]
         public void DealTurnCard(string turnCard)
         {
-            _cardDealer.DealTurnCard(turnCard);
+            StartCoroutine(_cardDealer.DealTurnCard(turnCard));
         }
 
         [PunRPC]
         public void DealRiverCard(string riverCard)
         {
-            _cardDealer.DealRiverCard(riverCard);
+            StartCoroutine(_cardDealer.DealRiverCard(riverCard));
         }
 
         [PunRPC]
