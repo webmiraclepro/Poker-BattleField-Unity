@@ -19,7 +19,10 @@ namespace PokerBattleField
         private CardSlot[] _holeCardSlots;
         
         [SerializeField]
-        public PokerButtonSlot _buttonSlot;
+        private PokerButtonSlot _buttonSlot;
+
+        [SerializeField]
+        private CharAnimator _charAnimator;
 
         private int _id = 0;
 
@@ -87,6 +90,7 @@ namespace PokerBattleField
                     photonView.RPC("ThrowAction", RpcTarget.All, Action.ActionTypes.Fold, .0d);
                 });
             }
+
         }
 
         public void OnPhotonInstantiate(PhotonMessageInfo info)
@@ -125,6 +129,27 @@ namespace PokerBattleField
         [PunRPC]
         public void ThrowAction(Action.ActionTypes actionType, double amount)
         {
+            switch (actionType)
+            {
+                case Action.ActionTypes.Call:
+                    StartCoroutine(_charAnimator.ShowChar("C"));
+                    break;
+                case Action.ActionTypes.Check:
+                    StartCoroutine(_charAnimator.ShowChar("H"));
+                    break;
+                case Action.ActionTypes.Fold:
+                    StartCoroutine(_charAnimator.ShowChar("F"));
+                    break;
+                case Action.ActionTypes.Bet:
+                    StartCoroutine(_charAnimator.ShowChar("B"));
+                    break;
+                case Action.ActionTypes.Raise:
+                    StartCoroutine(_charAnimator.ShowChar("R"));
+                    break;
+                default:
+                    break;
+            }
+
             if (PhotonNetwork.IsMasterClient)
             {
                 _gameManager.DispatchAction(actionType, amount);

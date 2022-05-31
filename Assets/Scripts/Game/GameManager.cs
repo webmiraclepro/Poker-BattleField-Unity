@@ -48,7 +48,7 @@ namespace PokerBattleField
         [SerializeField]
         private PokerButton _dealerButton;
 
-        private int _currentPlayer;
+        private int _currentPlayer = -1;
 
         private PokerPlayer _player;
 
@@ -226,15 +226,7 @@ namespace PokerBattleField
 
         private void UpdateNextPlayer()
         {
-            List<int> actionTypes = new List<int>();
-            List<double> amounts = new List<double>();
-
-            foreach (PokerAction action in _engine.GetAbleActions())
-            {
-                actionTypes.Add((int)action.ActionType);
-                amounts.Add(action.Amount);
-            }
-
+            _currentPlayer = _engine.PlayerIdx;
             photonView.RPC("SetNextPlayer", RpcTarget.All, _engine.PlayerIdx, _engine.GetAbleActions().ToArray());
         }
 

@@ -255,8 +255,11 @@ namespace HoldemEngine
 
             string playerName = _seats[_playerIdx].Name;
 
-            // Add Fold action regardless of any conditions
-            ableActions.Add(new Action(playerName, Action.ActionTypes.Fold, 0));
+            Action flodAction = new Action(playerName, Action.ActionTypes.Fold, 0);
+            if (_betManager.GetValidatedAction(flodAction).ActionType == Action.ActionTypes.Fold)
+            {
+                ableActions.Add(flodAction);
+            }
 
             Action betAction = new Action(playerName, Action.ActionTypes.Bet, 0);
             if (_betManager.GetValidatedAction(betAction).ActionType == Action.ActionTypes.Bet)

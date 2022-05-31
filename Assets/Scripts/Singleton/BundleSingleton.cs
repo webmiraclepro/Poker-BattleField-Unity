@@ -11,15 +11,6 @@ public class BundleSingleton : Singleton<BundleSingleton>
 {
 	private readonly List<AssetBundle> AssetBundleList = new List<AssetBundle>();
 	
-	private void Awake ()
-	{
-		if (_currentLevelAssetBundle != null)
-		{
-			_currentLevelAssetBundle.Unload(false);
-			_currentLevelAssetBundle = null;
-		}	
-	}
-	
 	public void OnDestroy()
 	{
 		UnloadAllBundles();
@@ -82,22 +73,4 @@ public class BundleSingleton : Singleton<BundleSingleton>
 		}
 		AssetBundleList.Clear();
 	}
-	
-	public void LoadLevelAssetBundle(string level)
-	{
-		string path = DirectoryUtility.ExternalAssets() + level + ".assetBundle";
-		Debug.Log("LoadLevelAssetBundle: " + path);
-		_currentLevelAssetBundle = AssetBundle.LoadFromFile(path);
-		if (_currentLevelAssetBundle != null && Application.CanStreamedLevelBeLoaded(level))
-		{
-			BundleSingleton.Instance.UnloadAllBundles();
-			SceneManager.LoadScene(level);	
-		}
-		else
-		{
-			Debug.Log("AssetBundle Not Found: " + path);
-		}
-	}
-	static private AssetBundle _currentLevelAssetBundle;
 }
-

@@ -8,6 +8,7 @@ namespace PokerBattleField
     public class PokerGame
     {
         public const int PLAYER_NUMBER = 6;
+        public const int TIMEOUT = 10;
         public const string PLAYER_READY = "IsPlayerReady";
         public const string PLAYER_LOADED_LEVEL = "PlayerLoadedLevel";
         public const string CHARACTER_READY = "CHARACTER_READY";

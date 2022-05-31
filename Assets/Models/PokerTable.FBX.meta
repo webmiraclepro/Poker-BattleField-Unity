@@ -1,7 +1,7 @@
 fileFormatVersion: 2
 guid: e34ab67fd3627ac40b94ba38798f1ad3
 ModelImporter:
-  serializedVersion: 20200
+  serializedVersion: 21202
   internalIDToNameTable: []
   externalObjects:
   - first:
@@ -23,12 +23,12 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: cart_2
-    second: {fileID: 2100000, guid: 2748e19bd3925024c84a662fc5a6548f, type: 2}
+    second: {fileID: 2100000, guid: fbc5c3bf885b3994a823a7e40a761b0f, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: cart_3
-    second: {fileID: 2100000, guid: c9182d50d69e0bb4fb6d861af5129abc, type: 2}
+    second: {fileID: 2100000, guid: fbc5c3bf885b3994a823a7e40a761b0f, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -58,7 +58,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: table
-    second: {fileID: 2100000, guid: 99372edff26986946800f2797cc1281c, type: 2}
+    second: {fileID: 2100000, guid: b9d55ef507ca1fc4b9006c92f42805f6, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -69,6 +69,7 @@ ModelImporter:
     bakeSimulation: 0
     resampleCurves: 1
     optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
     motionNodeName: 
     rigImportErrors: 
     rigImportWarnings: 
@@ -98,6 +99,7 @@ ModelImporter:
     importBlendShapes: 1
     importCameras: 1
     importLights: 1
+    nodeNameCollisionStrategy: 0
     fileIdsGeneration: 2
     swapUVChannels: 0
     generateSecondaryUV: 0
@@ -109,6 +111,7 @@ ModelImporter:
     skinWeightsMode: 0
     maxBonesPerVertex: 4
     minBoneWeight: 0.001
+    optimizeBones: 1
     meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
